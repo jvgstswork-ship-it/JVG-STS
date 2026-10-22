@@ -26,7 +26,7 @@
         <!-- 1. होम / बिलिंग काउंटर टैब -->
         <div id="tab-home" class="tab-content space-y-4">
             
-            <!-- डैशबोर्ड समरी कार्ड (तस्वीर के अनुसार) -->
+            <!-- डैशबोर्ड समरी कार्ड -->
             <div class="bg-gradient-to-br from-red-600 to-red-800 text-white p-4 rounded-3xl shadow-xl space-y-3">
                 <div class="flex justify-between items-center text-xs border-b border-red-500 pb-2">
                     <span class="font-bold">👤 जगन्नाथ विश्वकर्मा</span>
@@ -56,10 +56,6 @@
             <div class="bg-white p-4 rounded-2xl shadow-md border space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-black text-gray-800 text-sm">🛒 सामान चुनें और बिल बनाएं:</h3>
-                    <div class="flex gap-1 text-[11px]">
-                        <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">🔍 खोजें</span>
-                        <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">📷 स्कैन</span>
-                    </div>
                 </div>
 
                 <div>
@@ -69,7 +65,7 @@
 
                 <div class="flex gap-2">
                     <input type="text" id="home-search-input" onkeyup="searchItems()" placeholder="सामान का नाम, मॉडल या बारकोड लिखें..." class="flex-1 p-2.5 border rounded-xl text-xs font-semibold">
-                    <button type="button" onclick="startCameraScanner('home-search-input')" class="bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">📷 स्कैन</button>
+                    <button type="button" onclick="startCameraScanner('home-search-input')" class="bg-red-600 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1">📷 स्कैन</button>
                 </div>
 
                 <!-- कैमरा व्यू -->
@@ -81,7 +77,7 @@
                 <!-- खोज परिणाम -->
                 <div id="search-results-box" class="space-y-2 max-h-40 overflow-y-auto"></div>
 
-                <!-- कार्ट / चुने गए सामान की लिस्ट (हर प्रोडक्ट की अलग क्वांटिटी के साथ) -->
+                <!-- कार्ट लिस्ट -->
                 <div class="border-t pt-3">
                     <p class="text-xs font-black text-gray-700 mb-2">बिल में जोड़े गए सामान व मात्रा (Quantity):</p>
                     <div id="active-cart-list" class="divide-y text-xs max-h-44 overflow-y-auto space-y-2">
@@ -100,13 +96,28 @@
                     🔒 कंटिन्यू करें & फिक्स QR कोड बनाएं
                 </button>
             </div>
+
+            <!-- बिक्री का इतिहास (History Card) -->
+            <div class="bg-white p-4 rounded-2xl shadow-md border space-y-2">
+                <h3 class="font-black text-gray-800 text-sm flex items-center justify-between border-b pb-2">
+                    <span>📜 आज की बिक्री का इतिहास</span>
+                    <span class="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-bold">₹<span id="today-total-sales">0</span></span>
+                </h3>
+                <div id="sales-history-list" class="space-y-2 max-h-40 overflow-y-auto text-xs">
+                    <p class="text-[11px] text-gray-400 text-center py-2">आज अभी तक कोई बिक्री दर्ज नहीं हुई है</p>
+                </div>
+            </div>
         </div>
 
         <!-- 2. खोजें व स्कैन टैब -->
         <div id="tab-search" class="tab-content hidden-section space-y-4">
             <div class="bg-white p-4 rounded-2xl shadow border space-y-3">
-                <h3 class="font-black text-gray-800 text-sm">🔍 उत्पाद खोजें व बारकोड जाँच</h3>
-                <input type="text" id="tab-search-input" placeholder="नाम या मॉडल लिखें..." class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                <h3 class="font-black text-gray-800 text-sm">🔍 उत्पाद खोजें व बारकोड स्कैन</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="tab-search-input" placeholder="नाम या मॉडल लिखें..." class="flex-1 p-2.5 border rounded-xl text-xs font-semibold">
+                    <button type="button" onclick="startCameraScanner('tab-search-input')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">📷 स्कैन</button>
+                </div>
+                <div id="tab-search-results" class="space-y-2 max-h-40 overflow-y-auto"></div>
             </div>
         </div>
 
@@ -218,6 +229,7 @@
             }
             document.getElementById('user-display').innerText = "लॉगिन: " + (localStorage.getItem('jvg_user_name') || 'ऑपरेटर');
             updateDashboardStats();
+            renderSalesHistory();
 
             if (localStorage.getItem('jvg_user_role') === 'owner') {
                 document.getElementById('owner-staff-box').classList.remove('hidden-section');
@@ -226,6 +238,7 @@
 
         function updateDashboardStats() {
             document.getElementById('dash-total-sales').innerText = todaySales;
+            document.getElementById('today-total-sales').innerText = todaySales;
             document.getElementById('dash-total-items').innerText = masterProducts.length;
             document.getElementById('dash-total-bills').innerText = totalBillsCount;
         }
@@ -245,8 +258,10 @@
                 btn.classList.add('text-gray-400', 'font-semibold');
             });
             const activeNav = document.getElementById('nav-' + tabId);
-            activeNav.classList.remove('text-gray-400', 'font-semibold');
-            activeNav.classList.add('text-red-600', 'font-black');
+            if (activeNav) {
+                activeNav.classList.remove('text-gray-400', 'font-semibold');
+                activeNav.classList.add('text-red-600', 'font-black');
+            }
         }
 
         function searchItems() {
@@ -272,7 +287,7 @@
                 (decodedText) => {
                     document.getElementById(activeTargetInputId).value = decodedText;
                     stopCameraScanner();
-                    if(activeTargetInputId === 'home-search-input') searchItems();
+                    autoAddToCartByCode(decodedText);
                 },
                 (err) => {}
             ).catch(err => { alert("कैमरा परमिशन दें!"); document.getElementById('reader-container').classList.add('hidden-section'); });
@@ -285,8 +300,20 @@
             document.getElementById('reader-container').classList.add('hidden-section');
         }
 
+        function autoAddToCartByCode(codeText) {
+            let found = masterProducts.find(x => x.code === codeText || x.model.toLowerCase() === codeText.toLowerCase());
+            if(found) {
+                addToCart(found.code);
+                document.getElementById('home-search-input').value = '';
+                document.getElementById('search-results-box').innerHTML = '';
+            } else {
+                alert("यह बारकोड या मॉडल डेटाबेस में नहीं मिला: " + codeText);
+            }
+        }
+
         function addToCart(code) {
             let p = masterProducts.find(x => x.code === code);
+            if(!p) return;
             let ex = currentCart.find(x => x.code === code);
             if(ex) { ex.qty += 1; } else { currentCart.push({...p, qty: 1}); }
             renderCart();
@@ -348,6 +375,11 @@
             textMsg += `------------------\n*कुल भुगतान: ₹${lastAmount}*\nधन्यवाद! 🙏`;
             lastReceiptText = encodeURIComponent(textMsg);
 
+            let timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            salesHistory.unshift({ time: timeStr, amount: lastAmount, itemsCount: currentCart.length, seller: localStorage.getItem('jvg_user_name') });
+            localStorage.setItem('jvg_sales_history', JSON.stringify(salesHistory));
+            renderSalesHistory();
+
             todaySales += parseInt(lastAmount);
             localStorage.setItem('jvg_today_sales', todaySales);
             totalBillsCount += 1;
@@ -355,6 +387,19 @@
             updateDashboardStats();
 
             document.getElementById('success-modal').classList.remove('hidden-section');
+        }
+
+        function renderSalesHistory() {
+            let box = document.getElementById('sales-history-list');
+            if(!box) return;
+            if(salesHistory.length === 0) { box.innerHTML = '<p class="text-[11px] text-gray-400 text-center py-2">आज अभी तक कोई बिक्री दर्ज नहीं हुई है</p>'; return; }
+            box.innerHTML = '';
+            salesHistory.forEach(h => {
+                box.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl border">
+                    <div><p class="font-bold text-gray-800">₹${h.amount} <span class="text-[10px] text-gray-500">(${h.seller})</span></p><p class="text-[10px] text-gray-500">${h.time}</p></div>
+                    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">सफल ✓</span>
+                </div>`;
+            });
         }
 
         function shareWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${lastReceiptText}`, '_blank'); }
