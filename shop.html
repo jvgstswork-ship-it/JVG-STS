@@ -6,6 +6,8 @@
     <title>JVG SmartTech Suvidha - Secure Billing</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Html5-Qrcode Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         .hidden-section { display: none; }
         .watermark-bg {
@@ -38,11 +40,11 @@
             <h1 class="text-xl font-black text-red-600 tracking-tight">JVG SmartTech Suvidha</h1>
             <p class="text-xs text-gray-500 font-medium">गौरा दुबे, सिसवा बाज़ार, महराजगंज (UP)</p>
             <span class="inline-block mt-2 px-3 py-1 bg-red-50 text-red-700 font-bold text-xs rounded-full border border-red-200">
-                🔒 सिंगल-डिवाइस सुरक्षित लॉगिन
+                🔒 सुरक्षित शॉप एक्सेस
             </span>
         </div>
 
-        <form id="login-form" class="space-y-4">
+        <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
             <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">रोल चुनें</label>
                 <select id="login-role" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 bg-white text-sm font-semibold">
@@ -111,8 +113,16 @@
 
                     <div class="flex gap-2">
                         <input type="text" id="home-search-input" onkeyup="searchAndDisplayItems()" placeholder="सामान का नाम, मॉडल नंबर या बारकोड..." class="flex-1 p-2.5 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-500">
-                        <button onclick="scanIntoInput('home-search-input')" class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1">
+                        <button onclick="startCameraScanner('home-search-input')" class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1">
                             📷 स्कैन
+                        </button>
+                    </div>
+
+                    <!-- कैमरा व्यू स्क्रीन -->
+                    <div id="reader-container" class="hidden-section bg-black p-3 rounded-2xl border border-red-500 relative">
+                        <div id="reader" class="w-full rounded-xl overflow-hidden"></div>
+                        <button onclick="stopCameraScanner()" class="mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-xl text-xs">
+                            स्कैनर बंद करें ✕
                         </button>
                     </div>
 
@@ -133,7 +143,7 @@
                     </div>
 
                     <button onclick="generateAirtelQR()" class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-black rounded-xl shadow-md transition text-xs">
-                        🔒 कंटिन्यू करें & फिक्स QR कोड बनाएं (Airtel UPI)
+                        🔒 भुगतान हेतु QR कोड दिखाएं (Airtel UPI)
                     </button>
                 </div>
             </div>
@@ -144,7 +154,7 @@
                     <h3 class="font-black text-gray-800 text-sm">🔍 उत्पाद खोजें व मॉडल नंबर जाँच</h3>
                     <div class="flex gap-2">
                         <input type="text" id="tab-search-input" placeholder="मॉडल नंबर या नाम लिखें..." class="flex-1 p-2.5 border border-gray-300 rounded-xl text-xs font-semibold">
-                        <button onclick="scanIntoInput('tab-search-input')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">
+                        <button onclick="startCameraScanner('tab-search-input')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">
                             कैमरा स्कैन 📷
                         </button>
                     </div>
@@ -155,7 +165,7 @@
             <div id="tab-upload" class="tab-content hidden-section space-y-4">
                 <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-200 space-y-3">
                     <h3 class="font-black text-red-600 text-sm flex items-center gap-1.5 border-b pb-2">
-                        <span>📦 नया सामान/प्रोडक्ट अपलोड करें (स्कैनर सहित)</span>
+                        <span>📦 नया सामान/प्रोडक्ट अपलोड करें</span>
                     </h3>
                     <form id="product-upload-form" onsubmit="uploadNewProduct(event)" class="space-y-3 text-xs">
                         <div>
@@ -167,7 +177,7 @@
                                 <label class="block font-bold text-gray-700 mb-1">मॉडल नंबर (Model No.)</label>
                                 <div class="flex gap-1">
                                     <input type="text" id="prod-model" placeholder="उदा. BT-101" required class="w-full p-2.5 border border-gray-300 rounded-xl">
-                                    <button type="button" onclick="scanIntoInput('prod-model')" class="bg-gray-800 text-white px-2.5 rounded-xl text-xs font-bold">📷</button>
+                                    <button type="button" onclick="startCameraScanner('prod-model')" class="bg-gray-800 text-white px-2.5 rounded-xl text-xs font-bold">📷</button>
                                 </div>
                             </div>
                             <div>
@@ -179,7 +189,7 @@
                             <label class="block font-bold text-gray-700 mb-1">बारकोड नंबर</label>
                             <div class="flex gap-1">
                                 <input type="text" id="prod-barcode" placeholder="उदा. 890123456789" class="w-full p-2.5 border border-gray-300 rounded-xl">
-                                <button type="button" onclick="scanIntoInput('prod-barcode')" class="bg-gray-800 text-white px-2.5 rounded-xl text-xs font-bold">📷</button>
+                                <button type="button" onclick="startCameraScanner('prod-barcode')" class="bg-gray-800 text-white px-2.5 rounded-xl text-xs font-bold">📷</button>
                             </div>
                         </div>
                         <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl shadow transition">
@@ -189,7 +199,7 @@
                 </div>
             </div>
 
-            <!-- TAB 4: प्रोफ़ाइल व एक्टिव डिवाइस की जानकारी -->
+            <!-- TAB 4: प्रोफ़ाइल व एक्टिव डिवाइस -->
             <div id="tab-profile" class="tab-content hidden-section space-y-4">
                 <div id="owner-staff-section" class="hidden-section bg-white p-4 rounded-2xl shadow-md border border-yellow-400 space-y-3">
                     <h3 class="font-black text-red-600 text-sm border-b pb-2">👤 स्टाफ मैनेजमेंट (मालिक नियंत्रण)</h3>
@@ -207,7 +217,6 @@
                     <h3 class="font-black text-gray-800 text-sm border-b pb-2">📱 वर्तमान एक्टिव डिवाइस सुरक्षा</h3>
                     <div class="space-y-1.5 text-gray-600 bg-gray-50 p-3 rounded-xl border border-gray-200">
                         <p><strong>एक्टिव डिवाइस:</strong> <span id="active-device-name" class="text-red-600 font-bold">जाँच हो रही है...</span></p>
-                        <p class="text-[10px] text-gray-500">नोट: यदि आप इस आईडी को किसी दूसरे फोन में खोलेंगे, तो इस फोन से ऑटोमैटिक लॉगआउट हो जाएगा।</p>
                     </div>
                 </div>
 
@@ -224,7 +233,68 @@
             </div>
         </main>
 
-        <!-- 3. बॉटम नेविगेशन बार -->
+        <!-- QR CODE MODAL -->
+        <div id="qr-modal" class="hidden-section fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center space-y-4 shadow-2xl border border-gray-100">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 class="font-black text-gray-800 text-base">Airtel Payments Bank QR</h3>
+                    <button onclick="closeQRModal()" class="text-gray-400 font-bold text-lg hover:text-red-600">✕</button>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">कुल भुगतान राशि</p>
+                    <h2 class="text-3xl font-black text-red-600">₹<span id="modal-amount">0</span></h2>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200 inline-block shadow-inner">
+                    <img id="dynamic-qr-img" src="" alt="UPI QR Code" class="w-48 h-48 mx-auto rounded-xl">
+                </div>
+                <div class="text-xs text-gray-600 bg-red-50 p-2.5 rounded-xl border border-red-100">
+                    <p class="font-bold text-red-700">UPI ID: 33033C7333@mairtel</p>
+                </div>
+                <button onclick="simulatePaymentSuccess()" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl shadow-lg transition text-xs">
+                    ✓ पेमेंट प्राप्त हो गई (Success)
+                </button>
+            </div>
+        </div>
+
+        <!-- PAYMENT SUCCESS & RECEIPT MODAL -->
+        <div id="success-modal" class="hidden-section fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center space-y-3 shadow-2xl">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+                    ✓
+                </div>
+                <div>
+                    <h3 class="text-lg font-black text-gray-900">भुगतान सफल!</h3>
+                    <p class="text-xs text-green-600 font-bold mt-0.5">₹<span id="success-amount">0</span> प्राप्त हो गए</p>
+                </div>
+
+                <!-- डिजिटल रसीद बॉक्स -->
+                <div id="receipt-box" class="bg-gray-50 p-3 rounded-2xl text-left border border-gray-200 text-xs space-y-1">
+                    <p class="font-black text-center text-red-600 border-b pb-1">JVG SmartTech Suvidha</p>
+                    <p class="text-[10px] text-gray-500 text-center">गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
+                    <div id="receipt-items" class="py-1 space-y-0.5 border-b pb-1 text-[11px]"></div>
+                    <div class="flex justify-between font-black pt-1">
+                        <span>कुल योग:</span>
+                        <span class="text-red-600">₹<span id="receipt-total">0</span></span>
+                    </div>
+                </div>
+
+                <!-- WhatsApp और SMS शेयरिंग बटन -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button onclick="shareOnWhatsApp()" class="py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-xs shadow flex items-center justify-center gap-1">
+                        💬 WhatsApp रसीद
+                    </button>
+                    <button onclick="shareViaSMS()" class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow flex items-center justify-center gap-1">
+                        ✉️ SMS रसीद
+                    </button>
+                </div>
+
+                <button onclick="closeSuccessModal()" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs shadow">
+                    नया बिल बनाएं 🛒
+                </button>
+            </div>
+        </div>
+
+        <!-- बॉटम नेविगेशन बार -->
         <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white/95 backdrop-blur border-t border-gray-200/80 flex justify-around py-2.5 shadow-2xl z-50 rounded-t-2xl">
             <button onclick="switchTab('tab-home')" id="nav-tab-home" class="flex flex-col items-center text-red-600 font-black text-[11px]">
                 <span class="text-base">🏠</span>
@@ -247,7 +317,6 @@
 
     <script>
         const loginContainer = document.getElementById('login-container');
-        const loginForm = document.getElementById('login-form');
         const appDashboard = document.getElementById('app-dashboard');
         const ownerOnlyCard = document.getElementById('owner-only-card');
         const ownerStaffSection = document.getElementById('owner-staff-section');
@@ -256,7 +325,7 @@
 
         let staffDatabase = JSON.parse(localStorage.getItem('jvg_staff_db')) || {};
 
-        let masterProducts = [
+        let masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')) || [
             { name: "PVC Identity Card Print", model: "PVC-01", price: 50, code: "890101" },
             { name: "Ajanta LED Bulb 12W", model: "AJ-12W", price: 120, code: "890102" },
             { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103" },
@@ -264,17 +333,20 @@
         ];
 
         let currentCart = [];
+        let todaySales = parseInt(localStorage.getItem('jvg_today_sales')) || 0;
+        let html5QrCode = null;
+        let activeTargetInputId = null;
+        let lastPaidAmount = 0;
+        let lastReceiptText = "";
 
-        // डिवाइस का नाम पता करने का तरीका
         function getDeviceType() {
             const ua = navigator.userAgent;
-            if (/android/i.test(ua)) return "Android Phone (" + navigator.platform + ")";
+            if (/android/i.test(ua)) return "Android Phone";
             if (/iphone|ipad|ipod/i.test(ua)) return "Apple iPhone/iPad";
             if (/windows/i.test(ua)) return "Windows PC / Laptop";
             return "Web Browser Device";
         }
 
-        // पेज लोड होते ही सेशन और सिंगल-डिवाइस चेकिंग
         window.onload = function() {
             const savedSession = localStorage.getItem('jvg_session_active');
             const currentHour = new Date().getHours();
@@ -284,6 +356,8 @@
                 localStorage.removeItem('jvg_active_device');
                 return;
             }
+
+            document.getElementById('today-total-sales').innerText = todaySales;
 
             if (savedSession === 'true') {
                 const role = localStorage.getItem('jvg_user_role') || 'owner';
@@ -304,8 +378,7 @@
             }
         };
 
-        // 1. लॉगिन वैलिडाशन व सिंगल डिवाइस बाइंडिंग
-        loginForm.addEventListener('submit', function(e) {
+        function handleLogin(e) {
             e.preventDefault();
             const role = document.getElementById('login-role').value;
             const phone = document.getElementById('login-id').value;
@@ -331,7 +404,7 @@
                     alert('गलत स्टाफ मोबाइल नंबर या पासवर्ड!');
                 }
             }
-        });
+        }
 
         function saveSession(role, name, deviceName) {
             localStorage.setItem('jvg_session_active', 'true');
@@ -353,11 +426,11 @@
             localStorage.removeItem('jvg_active_device');
             appDashboard.classList.add('hidden-section');
             loginContainer.classList.remove('hidden-section');
-            loginForm.reset();
+            document.getElementById('login-form').reset();
         }
 
-        // 2. नेविगेशन स्विच
         function switchTab(tabId) {
+            stopCameraScanner();
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
             document.getElementById(tabId).classList.remove('hidden-section');
 
@@ -370,7 +443,6 @@
             activeNav.classList.add('text-red-600', 'font-black');
         }
 
-        // 3. स्टाफ रजिस्टर
         function registerStaff() {
             const name = document.getElementById('new-staff-name').value;
             const phone = document.getElementById('new-staff-phone').value;
@@ -389,7 +461,6 @@
             document.getElementById('new-staff-pass').value = '';
         }
 
-        // 4. नया सामान अपलोड
         function uploadNewProduct(e) {
             e.preventDefault();
             const name = document.getElementById('prod-name').value;
@@ -398,12 +469,13 @@
             const code = document.getElementById('prod-barcode').value || 'GEN-' + Math.floor(Math.random()*1000);
 
             masterProducts.push({ name, model, price, code });
-            alert(`'${name}' (मॉडल: ${model}) सफलतापूर्वक अपलोड हो गया!`);
+            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+
+            alert(`'${name}' (मॉडल: ${model}) सफलतापूर्वक अपलोड और सेव हो गया!`);
             document.getElementById('product-upload-form').reset();
             switchTab('tab-home');
         }
 
-        // 5. सर्च और मॉडल नंबर आधारित खोज
         function searchAndDisplayItems() {
             const query = document.getElementById('home-search-input').value.toLowerCase();
             const box = document.getElementById('search-results-box');
@@ -441,18 +513,48 @@
             });
         }
 
-        // 6. कैमरा स्कैनर इनबिल्ट फंक्शन
-        function scanIntoInput(targetId) {
-            const simulatedScannedCode = prompt("📷 [कैमरा स्कैनर]\nकृपया बारकोड या मॉडल नंबर दर्ज/स्कैन करें:");
-            if (simulatedScannedCode) {
-                document.getElementById(targetId).value = simulatedScannedCode;
-                if(targetId === 'home-search-input') {
-                    searchAndDisplayItems();
-                }
+        function startCameraScanner(targetId) {
+            activeTargetInputId = targetId;
+            const container = document.getElementById('reader-container');
+            container.classList.remove('hidden-section');
+
+            if (html5QrCode) {
+                stopCameraScanner();
             }
+
+            html5QrCode = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config, 
+                (decodedText, decodedResult) => {
+                    document.getElementById(activeTargetInputId).value = decodedText;
+                    stopCameraScanner();
+                    if (activeTargetInputId === 'home-search-input') {
+                        searchAndDisplayItems();
+                    }
+                },
+                (errorMessage) => {}
+            ).catch(err => {
+                alert("कैमरा चालू करने में असफलता: कृपया कैमरा परमिशन दें।");
+                container.classList.add('hidden-section');
+            });
         }
 
-        // 7. कार्ट और बिल मैनेजमेंट
+        function stopCameraScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    html5QrCode = null;
+                }).catch(err => {
+                    html5QrCode = null;
+                });
+            }
+            const container = document.getElementById('reader-container');
+            if(container) container.classList.add('hidden-section');
+        }
+
         function addToCart(code) {
             const product = masterProducts.find(p => p.code === code);
             if (!product) return;
@@ -506,7 +608,61 @@
                 alert('कृपया बिल में कम से कम एक सामान जोड़ें!');
                 return;
             }
-            alert(`Airtel UPI Payment QR Created for ₹${amount}!\n(UPI ID: 33033C7333@mairtel)`);
+
+            lastPaidAmount = amount;
+            document.getElementById('modal-amount').innerText = amount;
+            
+            const upiString = `upi://pay?pa=33033C7333@mairtel&pn=JVG%20SmartTech%20Suvidha&am=${amount}&cu=INR`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
+            
+            document.getElementById('dynamic-qr-img').src = qrImageUrl;
+            document.getElementById('qr-modal').classList.remove('hidden-section');
+        }
+
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden-section');
+        }
+
+        function simulatePaymentSuccess() {
+            document.getElementById('qr-modal').classList.add('hidden-section');
+            
+            document.getElementById('success-amount').innerText = lastPaidAmount;
+            document.getElementById('receipt-total').innerText = lastPaidAmount;
+
+            let receiptHTML = '';
+            let textMessage = "*JVG SmartTech Suvidha* (गौरा दुबे, सिसवा बाज़ार)\n--------------------------\n";
+            
+            currentCart.forEach(item => {
+                receiptHTML += `<div class="flex justify-between"><span>${item.name} (${item.qty}x)</span> <span>₹${item.price * item.qty}</span></div>`;
+                textMessage += `${item.name} x${item.qty} = ₹${item.price * item.qty}\n`;
+            });
+
+            document.getElementById('receipt-items').innerHTML = receiptHTML;
+            textMessage += `--------------------------\n*कुल भुगतान: ₹${lastPaidAmount}*\nधन्यवाद! 🙏`;
+            lastReceiptText = encodeURIComponent(textMessage);
+
+            document.getElementById('success-modal').classList.remove('hidden-section');
+
+            todaySales += parseInt(lastPaidAmount);
+            localStorage.setItem('jvg_today_sales', todaySales);
+            document.getElementById('today-total-sales').innerText = todaySales;
+
+            currentCart = [];
+            renderCart();
+            document.getElementById('home-search-input').value = '';
+            document.getElementById('search-results-box').innerHTML = `<p class="text-xs text-gray-400 text-center py-2">सामान खोजने के लिए नाम या मॉडल नंबर लिखें</p>`;
+        }
+
+        function shareOnWhatsApp() {
+            window.open(`https://api.whatsapp.com/send?text=${lastReceiptText}`, '_blank');
+        }
+
+        function shareViaSMS() {
+            window.open(`sms:?body=${lastReceiptText}`);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden-section');
         }
     </script>
 </body>
