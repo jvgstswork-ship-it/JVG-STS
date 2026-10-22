@@ -63,6 +63,11 @@
                 <input type="password" id="login-pass" placeholder="XXXX" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 text-sm font-semibold">
             </div>
 
+            <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500 font-medium">ओनर पास: <strong class="text-red-600">7518314203</strong></span>
+                <button type="button" onclick="forgotPassword()" class="text-red-600 font-bold hover:underline">पासवर्ड भूल गए? 🤔</button>
+            </div>
+
             <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-black rounded-xl shadow-lg transition duration-200 text-sm">
                 लॉगिन करें
             </button>
@@ -82,7 +87,7 @@
                     <p id="display-user-info" class="text-[10px] opacity-90 font-medium">लॉगिन: जगन्नाथ विश्वकर्मा</p>
                 </div>
             </div>
-            <button onclick="logout()" class="text-xs bg-white/20 backdrop-blur hover:bg-white/30 text-white font-bold px-3 py-1.5 rounded-lg transition border border-white/30">
+            <button type="button" onclick="logout()" class="text-xs bg-white/20 backdrop-blur hover:bg-white/30 text-white font-bold px-3 py-1.5 rounded-lg transition border border-white/30">
                 लॉगआउट
             </button>
         </header>
@@ -153,7 +158,7 @@
                     </button>
                 </div>
 
-                <!-- बिक्री का इतिहास (स्टाफ और ओनर दोनों के लिए लाइव) -->
+                <!-- बिक्री का इतिहास -->
                 <div class="bg-white/90 backdrop-blur p-4 rounded-2xl shadow-md border border-gray-200/80 space-y-2">
                     <h3 class="font-black text-gray-800 text-sm flex items-center justify-between border-b pb-2">
                         <span>📜 आज की बिक्री का इतिहास (Sales History)</span>
@@ -276,12 +281,15 @@
         <!-- PAYMENT SUCCESS & DETAILED RECEIPT MODAL -->
         <div id="success-modal" class="hidden-section fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center space-y-3 shadow-2xl">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
-                    ✓
+                <div class="flex justify-between items-center border-b pb-2">
+                    <div class="flex items-center gap-1.5 text-green-600 font-black text-sm">
+                        <span>✓</span> <span>भुगतान सफल!</span>
+                    </div>
+                    <button type="button" onclick="closeSuccessModal()" class="text-gray-400 font-bold text-lg hover:text-red-600 px-2 py-0.5 rounded-lg bg-gray-100">✕ रसीद काटें</button>
                 </div>
+
                 <div>
-                    <h3 class="text-lg font-black text-gray-900">भुगतान सफल!</h3>
-                    <p class="text-xs text-green-600 font-bold mt-0.5">₹<span id="success-amount">0</span> प्राप्त हो गए</p>
+                    <p class="text-xs text-green-600 font-bold">प्राप्त राशि: ₹<span id="success-amount">0</span></p>
                 </div>
 
                 <!-- डिजिटल रसीद बॉक्स -->
@@ -307,7 +315,7 @@
                 </div>
 
                 <button type="button" onclick="closeSuccessModal()" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs shadow">
-                    नया बिल बनाएं 🛒
+                    रसीद छोड़ें & नया बिल बनाएं 🛒
                 </button>
             </div>
         </div>
@@ -400,6 +408,18 @@
                 openApp();
             }
         };
+
+        // पासवर्ड भूलने पर अलर्ट दिखाने का नया फ़ंक्शन
+        function forgotPassword() {
+            const role = document.getElementById('login-role').value;
+            if (role === 'owner') {
+                alert("ओनर (मालिक) का पासवर्ड आपका मोबाइल नंबर है: 7518314203");
+                document.getElementById('login-id').value = "7518314203";
+                document.getElementById('login-pass').value = "7518314203";
+            } else {
+                alert("स्टाफ का पासवर्ड संबंधित स्टाफ के मोबाइल नंबर से जुड़ा है। यदि आप भूल गए हैं, तो ओनर (मालिक) अकाउंट से लॉगिन करके 'प्रोफ़ाइल' टैब में जाकर स्टाफ चेक कर सकते हैं।");
+            }
+        }
 
         function handleLogin(e) {
             e.preventDefault();
@@ -675,7 +695,6 @@
             textMessage += `--------------------------\n*कुल भुगतान: ₹${lastPaidAmount}*\nधन्यवाद! 🙏`;
             lastReceiptText = encodeURIComponent(textMessage);
 
-            // बिक्री इतिहास (History) में जोड़ना ताकि स्टाफ और ओनर दोनों को दिखे
             const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             salesHistory.unshift({
                 time: timeString,
@@ -729,14 +748,12 @@
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.add('hidden-section');
             
-            // काउंटर, इनपुट और नंबर पूरी तरह साफ़ करना
             currentCart = [];
             renderCart();
             document.getElementById('home-search-input').value = '';
             document.getElementById('customer-phone').value = '';
             document.getElementById('search-results-box').innerHTML = `<p class="text-xs text-gray-400 text-center py-2">सामान खोजने के लिए नाम या मॉडल नंबर लिखें</p>`;
             
-            // ऑटोमैटिक होम स्क्रीन पर वापस लाना
             switchTab('tab-home');
         }
     </script>

@@ -1,0 +1,30 @@
+<!-- भुगतान सफलता और रसीद पॉप-अप -->
+<div id="success-modal" class="hidden-section fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center space-y-3 shadow-2xl">
+        <div class="flex justify-between items-center border-b pb-2">
+            <span class="text-green-600 font-black text-sm">✓ भुगतान सफल!</span>
+            <!-- रसीद कट करने का बटन -->
+            <button type="button" onclick="closeSuccessModal()" class="text-gray-400 font-bold text-xs px-2 py-1 bg-gray-100 rounded-lg">✕ रसीद काटें</button>
+        </div>
+        <p class="text-xs text-green-600 font-bold">प्राप्त राशि: ₹<span id="success-amount">0</span></p>
+        
+        <div class="grid grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="shareOnWhatsApp()" class="py-2.5 bg-green-500 text-white font-bold rounded-xl text-xs shadow">💬 WhatsApp रसीद</button>
+            <button type="button" onclick="shareViaSMS()" class="py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow">✉️ SMS रसीद</button>
+        </div>
+
+        <button type="button" onclick="closeSuccessModal()" class="w-full py-2.5 bg-red-600 text-white font-black rounded-xl text-xs shadow">
+            रसीद छोड़ें & नया बिल बनाएं 🛒
+        </button>
+    </div>
+</div>
+
+<script>
+    function closeSuccessModal() {
+        document.getElementById('success-modal').classList.add('hidden-section');
+        // काउंटर और नंबर साफ़ करना
+        currentCart = [];
+        if(typeof renderCart === 'function') renderCart();
+        document.getElementById('customer-phone').value = '';
+    }
+</script>
