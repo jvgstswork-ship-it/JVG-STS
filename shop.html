@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVG STS - Secure Billing & Scanner App</title>
+    <!-- Firebase Cloud Database Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f4f6f9; display: flex; justify-content: center; }
+        
+        .mobile-screen {
+            width: 100%;
+            max-width: 412px;
+            min-height: 100vh;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .header {
+            background: #e11900;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title { font-size: 16px; font-weight: bold; }
+        .user-badge { font-size: 11px; background: rgba(255,255,255,0.25); padding: 3px 8px; border-radius: 12px; }
+
+        .content { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 70px; }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stats-box {
+            background: linear-gradient(135deg, #e11900, #990000);
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(225, 25, 0, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 18px; font-weight: bold; }
+        .stat-label { font-size: 11px; opacity: 0.9; }
+
+        .user-info-row {
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+
+        .btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        .btn-orange { background: #fd7e14; }
+        .btn-blue { background: #1a73e8; }
+        .btn-purple { background: #6f42c1; }
+        .btn-sm { padding: 4px 8px; font-size: 11px; width: auto; margin-top: 0; }
+        .btn-whatsapp { background: #25D366; }
+
+        input, select {
+            width: 100%;
+            padding: 9px;
+            margin: 6px 0 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #666;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .nav-item.active { color: #e11900; font-weight: bold; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .receipt-card {
+            background: #fff;
+            border: 2px dashed #e11900;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .qr-card {
+            background: #f8f9fa;
+            border: 2px solid #e11900;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .item-select-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .online-tag {
+            background: #25D366;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .header-action-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-screen">
+    <!-- हेडर -->
+    <div class="header">
+        <div class="header-title">JVG STS <span class="online-tag">LIVE ONLINE</span></div>
+        <div class="user-badge" id="currentUserBadge">👑 मालिक (Owner)</div>
+    </div>
+
+    <div class="content">
+        
+        <!-- 1. होम पेज (सुरक्षित बिलिंग काउंटर) -->
+        <div id="page-home" class="page active">
+            
+            <div class="stats-box">
+                <div class="user-info-row">
+                    <span>👤 <strong id="dashUserName">जगन्नाथ विश्वकर्मा</strong></span>
+                    <span>📱 <strong id="dashUserMobile">7518314203</strong></span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="dashTotalSales">₹0</div>
+                        <div class="stat-label" id="salesLabelTitle">दुकान की कुल सेल</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="dashTotalStock">30 पिस</div>
+                        <div class="stat-label">लाइव स्टॉक</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="dashTodayUploads">3 सामान</div>
+                        <div class="stat-label">अपलोड आइटम</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #ffda6a;" id="dashSoldUnits">0 बिल</div>
+                        <div class="stat-label" id="billsLabelTitle">कुल बिल कटे</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- काउंटर सेल सूची - हेडर में सर्च और स्कैनर बटन के साथ -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="font-size: 14px;">🛍️ सामान चुनें और बिल बनाएं:</h4>
+                    <div class="header-action-group">
+                        <button class="btn btn-blue btn-sm" onclick="switchPage('page-search', null)">🔍 खोजें</button>
+                        <button class="btn btn-purple btn-sm" onclick="scanToAddToCart()">📷 स्कैन</button>
+                    </div>
+                </div>
+
+                <!-- त्वरित सामान खोज फ़िल्टर -->
+                <input type="text" id="quickFilterInput" placeholder="सामान का नाम लिखकर छांटें..." onkeyup="filterProductList()" style="padding: 6px; font-size: 12px; margin-bottom: 10px;">
+                
+                <div id="productSelectionList">
+                    <div class="item-select-row" id="row-p1">
+                        <div>
+                            <strong>Ajanta LED Bulb 12W</strong><br>
+                            <span style="font-size:11px; color:#666;">रेट: ₹<span id="rate-p1">120</span> (लॉक) | स्टॉक: <strong id="stk-p1" style="color:green;">5</strong> पीस</span>
+                        </div>
+                        <input type="number" min="0" value="0" style="width:60px; margin:0;" onchange="calculateCartTotal()" class="cart-qty" data-id="p1" data-name="Ajanta LED 12W" data-price="120">
+                    </div>
+
+                    <div class="item-select-row" id="row-p2">
+                        <div>
+                            <strong>boAt Neckband BT-101</strong><br>
+                            <span style="font-size:11px; color:#666;">रेट: ₹<span id="rate-p2">650</span> (लॉक) | स्टॉक: <strong id="stk-p2" style="color:green;">3</strong> पीस</span>
+                        </div>
+                        <input type="number" min="0" value="0" style="width:60px; margin:0;" onchange="calculateCartTotal()" class="cart-qty" data-id="p2" data-name="boAt Neckband" data-price="650">
+                    </div>
+
+                    <div class="item-select-row" id="row-p3">
+                        <div>
+                            <strong>PVC Identity Card Print</strong><br>
+                            <span style="font-size:11px; color:#666;">रेट: ₹<span id="rate-p3">50</span> (लॉक) | स्टॉक: <strong id="stk-p3" style="color:green;">22</strong> पीस</span>
+                        </div>
+                        <input type="number" min="0" value="0" style="width:60px; margin:0;" onchange="calculateCartTotal()" class="cart-qty" data-id="p3" data-name="PVC Card Print" data-price="50">
+                    </div>
+                </div>
+
+                <div style="background: #eef3fc; padding: 10px; border-radius: 6px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>कुल बिल राशि:</span>
+                    <strong style="font-size: 18px; color: #e11900;" id="cartTotalDisplay">₹0</strong>
+                </div>
+
+                <button class="btn btn-orange" onclick="processCheckoutAndGenerateQR()">
+                    🔒 कंटिन्यू करें & फिक्स QR कोड बनाएं
+                </button>
+            </div>
+
+            <!-- फिक्स पेमेंट QR कोड बॉक्स -->
+            <div id="qrPaymentBox" style="display:none;"></div>
+            <div id="receiptBox" style="display:none;"></div>
+        </div>
+
+        <!-- 2. नया सामान अपलोड करें -->
+        <div id="page-add" class="page">
+            <h3 style="color: #e11900;">नया सामान / सेवा अपलोड करें</h3>
+            <br>
+            <div class="card">
+                <label>कैटेगरी चुनें:</label>
+                <select id="pCat">
+                    <option>इलेक्ट्रॉनिक्स सामान</option>
+                    <option>डिजिटल / बैंकिंग सेवा</option>
+                    <option>PVC Card / फॉर्म सर्विस</option>
+                </select>
+
+                <label>सामान का नाम:</label>
+                <input type="text" id="pName" placeholder="जैसे: Smartwatch / PVC Card">
+                
+                <label>बेचने का फिक्स रेट (₹):</label>
+                <input type="number" id="pPrice" placeholder="120">
+                
+                <label>शुरुआती स्टॉक मात्रा:</label>
+                <input type="number" id="pStock" placeholder="50">
+
+                <button class="btn btn-blue" onclick="saveProductOnline()">क्लाउड डेटाबेस में अपलोड करें</button>
+            </div>
+        </div>
+
+        <!-- 3. सेल रिपोर्ट -->
+        <div id="page-sales" class="page">
+            <h3>📊 बिक्री रिपोर्ट (Sales Summary)</h3>
+            <br>
+            
+            <div id="ownerSalesSummaryCard" class="card" style="border-top: 4px solid #e11900;">
+                <h4 style="color: #e11900;">👑 मालिक डैशबोर्ड (All Staff Live Sales)</h4>
+                <br>
+                <p><strong>दुकान की कुल कमाई:</strong> <span style="color: green; font-weight: bold;" id="overallShopEarnings">₹0</span></p>
+                <hr style="margin: 8px 0; border: 0.5px solid #eee;">
+                
+                <div id="staffBreakdownList">
+                    <p style="font-size: 12px; color: #555;">• <strong>राहुल वर्मा (स्टाफ):</strong> ₹0 (0 बिल)</p>
+                    <p style="font-size: 12px; color: #555;">• <strong>अमित कुमार (स्टाफ):</strong> ₹0 (0 बिल)</p>
+                </div>
+            </div>
+
+            <div id="staffSelfSalesCard" class="card" style="border-top: 4px solid #fd7e14; display: none;">
+                <h4 style="color: #fd7e14;">👨‍💼 केवल आपकी बिक्री (Your Personal Sales)</h4>
+                <br>
+                <p><strong>आपकी आज की कुल बिक्री:</strong> <strong style="color: green;" id="myPersonalEarnings">₹0</strong></p>
+                <p><strong>आपके द्वारा काटे गए बिल:</strong> <strong id="myPersonalBills">0 बिल</strong></p>
+            </div>
+        </div>
+
+        <!-- 4. खोजें पेज -->
+        <div id="page-search" class="page">
+            <h3>सामान खोजें</h3>
+            <br>
+            <input type="text" id="searchInputField" placeholder="सामान का नाम या मॉडल लिखें..." onkeyup="filterSearchPageList()">
+            <div class="card" id="searchResultsContainer">
+                <p style="font-size: 12px; color: #666;">सामान का नाम लिखकर ऊपर खोजें...</p>
+            </div>
+        </div>
+
+        <!-- 5. सेटिंग्स, यूजर स्विच एवं सामान रेट एडिटर (सुरक्षित) -->
+        <div id="page-profile" class="page">
+            <h3>दुकान सेटिंग्स एवं सामान एडिट</h3>
+            <br>
+
+            <!-- ओनर के लिए रेट/स्टॉक अपडेट फॉर्म -->
+            <div class="card" style="border-top: 4px solid #1a73e8;" id="rateEditCard">
+                <h4 style="color: #1a73e8;">✏️ सामान का रेट या स्टॉक बदलें (Admin Edit)</h4>
+                <p style="font-size: 11px; color: #666; margin-bottom: 8px;">केवल मालिक यहाँ से रेट या स्टॉक मॉडिफाई कर सकते हैं:</p>
+                
+                <label>सामान चुनें:</label>
+                <select id="editProductSelect">
+                    <option value="p1">Ajanta LED Bulb 12W</option>
+                    <option value="p2">boAt Neckband BT-101</option>
+                    <option value="p3">PVC Identity Card Print</option>
+                </select>
+
+                <label>नया रेट (₹):</label>
+                <input type="number" id="editNewPrice" placeholder="उदा. 130">
+
+                <label>नया स्टॉक (मात्रा):</label>
+                <input type="number" id="editNewStock" placeholder="उदा. 20">
+
+                <button class="btn btn-blue" onclick="updateProductPriceAndStock()">अपडेट करें (Save Edit)</button>
+            </div>
+
+            <div class="card" style="background: #eef3fc;">
+                <h4>👤 यूजर स्विच करें (Role Switch):</h4>
+                <select id="roleSelector" onchange="switchUserRole(this.value)">
+                    <option value="owner">👑 जगन्नाथ विश्वकर्मा (मालिक)</option>
+                    <option value="staff_rahul">👨‍💼 राहुल वर्मा (स्टाफ)</option>
+                    <option value="staff_amit">👨‍💼 अमित कुमार (स्टाफ)</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- नेविगेशन बार -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchPage('page-home', this)">
+            <span class="nav-icon">🏠</span>होम
+        </div>
+        <div class="nav-item" onclick="switchPage('page-add', this)">
+            <span class="nav-icon">➕</span>अपलोड
+        </div>
+        <div class="nav-item" onclick="switchPage('page-sales', this)">
+            <span class="nav-icon">🧾</span>सेल रिपोर्ट
+        </div>
+        <div class="nav-item" onclick="switchPage('page-search', this)">
+            <span class="nav-icon">🔍</span>खोजें
+        </div>
+        <div class="nav-item" onclick="switchPage('page-profile', this)">
+            <span class="nav-icon">⚙️</span>सेटिंग्स
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDemoConfigKeyForJVGSTS12345",
+        authDomain: "jvg-sts-app.firebaseapp.com",
+        projectId: "jvg-sts-app",
+        storageBucket: "jvg-sts-app.appspot.com",
+        messagingSenderId: "1234567890",
+        appId: "1:1234567890:web:abcdef123456"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    let merchantUPI = "33033C7333@mairtel";
+    let merchantName = "JVG SmartTech Suvidha JVG STS";
+
+    let currentUserRole = 'owner';
+    let currentUserName = 'जगन्नाथ विश्वकर्मा';
+    let currentUserMobile = '7518314203';
+
+    let currentTotalCartAmount = 0;
+    let selectedCartSummaryText = "";
+
+    let liveSalesData = {
+        owner: { total: 0, bills: 0 },
+        staff_rahul: { total: 0, bills: 0, name: "राहुल वर्मा" },
+        staff_amit: { total: 0, bills: 0, name: "अमित कुमार" }
+    };
+
+    let productStocks = { p1: 5, p2: 3, p3: 22 };
+    let productPrices = { p1: 120, p2: 650, p3: 50 };
+
+    // 1. बारकोड/QR स्कैन करके सीधे बिलिंग लिस्ट में सामान जोड़ना
+    function scanToAddToCart() {
+        // सिमुलेशन: स्कैन से 'boAt Neckband (p2)' डिटेक्ट हुआ
+        let scannedId = "p2";
+        let qtyInput = document.querySelector(`.cart-qty[data-id="${scannedId}"]`);
+        
+        if(qtyInput) {
+            let currentVal = parseInt(qtyInput.value) || 0;
+            if(currentVal < productStocks[scannedId]) {
+                qtyInput.value = currentVal + 1;
+                calculateCartTotal();
+                alert(`📷 बारकोड स्कैन सफल! \nboAt Neckband (1x) बिल में जुड़ गया।`);
+            } else {
+                alert(`⚠️ इस सामान का केवल ${productStocks[scannedId]} पीस ही स्टॉक में बचा है!`);
+            }
+        }
+    }
+
+    // 2. होम स्क्रीन पर तुरंत फ़िल्टर
+    function filterProductList() {
+        let text = document.getElementById('quickFilterInput').value.toLowerCase();
+        let rows = document.querySelectorAll('#productSelectionList .item-select-row');
+        rows.forEach(row => {
+            let itemText = row.innerText.toLowerCase();
+            row.style.display = itemText.includes(text) ? 'flex' : 'none';
+        });
+    }
+
+    // 3. सेफ एडिट: सेटिंग्स में जाकर रेट या स्टॉक बदलना
+    function updateProductPriceAndStock() {
+        if(currentUserRole !== 'owner') {
+            alert('⚠️ केवल ओनर/मालिक ही रेट या स्टॉक बदल सकते हैं!');
+            return;
+        }
+
+        let pid = document.getElementById('editProductSelect').value;
+        let newP = parseFloat(document.getElementById('editNewPrice').value);
+        let newS = parseInt(document.getElementById('editNewStock').value);
+
+        if(!isNaN(newP) && newP > 0) {
+            productPrices[pid] = newP;
+            document.getElementById(`rate-${pid}`).innerText = newP;
+            let qtyInput = document.querySelector(`.cart-qty[data-id="${pid}"]`);
+            if(qtyInput) qtyInput.setAttribute('data-price', newP);
+        }
+
+        if(!isNaN(newS) && newS >= 0) {
+            productStocks[pid] = newS;
+            document.getElementById(`stk-${pid}`).innerText = newS;
+        }
+
+        alert('✅ सामान का रेट और स्टॉक सफलतापूर्वक अपडेट कर दिया गया!');
+        calculateCartTotal();
+        document.getElementById('editNewPrice').value = '';
+        document.getElementById('editNewStock').value = '';
+    }
+
+    function calculateCartTotal() {
+        let qtyInputs = document.querySelectorAll('.cart-qty');
+        let total = 0;
+        let summaryText = [];
+
+        qtyInputs.forEach(input => {
+            let pid = input.getAttribute('data-id');
+            let availableStock = productStocks[pid];
+            let qty = parseInt(input.value) || 0;
+
+            if(qty > availableStock) {
+                alert(`⚠️ केवल ${availableStock} पीस ही स्टॉक में उपलब्ध है!`);
+                input.value = availableStock;
+                qty = availableStock;
+            }
+
+            if(qty > 0) {
+                let price = productPrices[pid];
+                let name = input.getAttribute('data-name');
+                total += (qty * price);
+                summaryText.push(`${name} (${qty}x)`);
+            }
+        });
+
+        currentTotalCartAmount = total;
+        selectedCartSummaryText = summaryText.join(', ');
+        document.getElementById('cartTotalDisplay').innerText = '₹' + total;
+    }
+
+    function processCheckoutAndGenerateQR() {
+        if(currentTotalCartAmount <= 0) {
+            alert('कृपया कम से कम 1 सामान की संख्या चुनें!');
+            return;
+        }
+
+        let qrBox = document.getElementById('qrPaymentBox');
+        qrBox.style.display = 'block';
+
+        let upiString = `upi://pay?pa=${merchantUPI}&pn=${encodeURIComponent(merchantName)}&am=${currentTotalCartAmount}&cu=INR&tn=Bill%20JVG%20STS`;
+        let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiString)}`;
+
+        qrBox.innerHTML = `
+        <div class="qr-card">
+            <div style="font-size: 12px; font-weight: bold; color: #e11900;">Airtel Payments Bank</div>
+            <h4 style="color: #333; font-size: 14px;">${merchantName}</h4>
+            <p style="font-size: 11px; color: #666;">सामान: ${selectedCartSummaryText}</p>
+            <hr style="margin: 8px 0; border: 0.5px solid #eee;">
+            
+            <div style="background:#ffebe9; color:#d93025; padding:8px; border-radius:6px; font-weight:bold; font-size:15px; margin-bottom:10px;">
+                🔒 भुगतान राशि फिक्स: ₹${currentTotalCartAmount}
+            </div>
+
+            <img src="${qrApiUrl}" alt="Airtel Dynamic UPI QR" style="border: 2px solid #e11900; padding: 5px; background: #fff; border-radius: 8px;">
+
+            <p style="font-size: 11px; color: #d93025; font-weight: bold; margin-top: 8px;">
+                ⚠️ ग्राहक इस अमाउंट को एडिट/कम नहीं कर सकता!
+            </p>
+            
+            <button class="btn btn-whatsapp" style="margin-top: 10px;" onclick="finalizeSaleAndSendBill()">
+                ✅ पेमेंट मिला / ऑनलाइन सेव करें
+            </button>
+        </div>`;
+    }
+
+    function finalizeSaleAndSendBill() {
+        let qtyInputs = document.querySelectorAll('.cart-qty');
+        qtyInputs.forEach(input => {
+            let pid = input.getAttribute('data-id');
+            let qty = parseInt(input.value) || 0;
+            if(qty > 0) {
+                productStocks[pid] -= qty;
+                document.getElementById(`stk-${pid}`).innerText = productStocks[pid];
+                input.value = 0;
+            }
+        });
+
+        liveSalesData[currentUserRole].total += currentTotalCartAmount;
+        liveSalesData[currentUserRole].bills += 1;
+
+        updateDashboardAndSalesViews();
+
+        let box = document.getElementById('receiptBox');
+        box.style.display = 'block';
+        let billText = `${merchantName}%0A------------------------%0Aसामान: ${selectedCartSummaryText}%0Aकुल रकम: ₹${currentTotalCartAmount} (Paid)%0Aजारीकर्ता: ${currentUserName} (${currentUserMobile})%0Aधन्यवाद!`;
+
+        box.innerHTML = `
+        <div class="receipt-card">
+            <h3 style="text-align: center; color: #e11900;">${merchantName}</h3>
+            <p style="text-align: center; font-size: 11px; color: #555;">Gaura Dube, Siswa Bazar, Maharajganj, U.P.</p>
+            <hr style="margin: 8px 0; border: 0.5px solid #ccc;">
+            <p><strong>बिक्री रसीद (Paid Bill)</strong></p>
+            <p><strong>सामान:</strong> ${selectedCartSummaryText}</p>
+            <p><strong>कुल प्राप्त राशि:</strong> ₹${currentTotalCartAmount}</p>
+            <p><strong>जारीकर्ता:</strong> ${currentUserName} (मो: ${currentUserMobile})</p>
+            <hr style="margin: 8px 0; border: 0.5px solid #ccc;">
+            <button class="btn btn-whatsapp" onclick="window.open('https://wa.me/?text=${billText}')">📲 WhatsApp पर रसीद भेजें</button>
+        </div>`;
+
+        calculateCartTotal();
+    }
+
+    function switchUserRole(role) {
+        currentUserRole = role;
+        let badge = document.getElementById('currentUserBadge');
+        let dashName = document.getElementById('dashUserName');
+        let dashMob = document.getElementById('dashUserMobile');
+        let editCard = document.getElementById('rateEditCard');
+
+        if(role === 'owner') {
+            badge.innerText = '👑 मालिक (Owner)';
+            currentUserName = 'जगन्नाथ विश्वकर्मा';
+            currentUserMobile = '7518314203';
+            editCard.style.display = 'block';
+        } else if(role === 'staff_rahul') {
+            badge.innerText = '👨‍💼 राहुल (Staff)';
+            currentUserName = 'राहुल वर्मा';
+            currentUserMobile = '9876543210';
+            editCard.style.display = 'none'; // स्टाफ के लिए रेट एडिट फॉर्म छिपाएं
+        } else if(role === 'staff_amit') {
+            badge.innerText = '👨‍💼 अमित (Staff)';
+            currentUserName = 'अमित कुमार';
+            currentUserMobile = '9123456789';
+            editCard.style.display = 'none';
+        }
+
+        dashName.innerText = currentUserName;
+        dashMob.innerText = currentUserMobile;
+
+        updateDashboardAndSalesViews();
+        switchPage('page-home', document.querySelectorAll('.nav-item')[0]);
+    }
+
+    function updateDashboardAndSalesViews() {
+        let ownerCard = document.getElementById('ownerSalesSummaryCard');
+        let staffCard = document.getElementById('staffSelfSalesCard');
+
+        if(currentUserRole === 'owner') {
+            let totalShopSum = liveSalesData.owner.total + liveSalesData.staff_rahul.total + liveSalesData.staff_amit.total;
+            let totalShopBills = liveSalesData.owner.bills + liveSalesData.staff_rahul.bills + liveSalesData.staff_amit.bills;
+
+            document.getElementById('dashTotalSales').innerText = '₹' + totalShopSum;
+            document.getElementById('dashSoldUnits').innerText = totalShopBills + ' बिल';
+
+            ownerCard.style.display = 'block';
+            staffCard.style.display = 'none';
+
+            document.getElementById('overallShopEarnings').innerText = '₹' + totalShopSum;
+            document.getElementById('staffBreakdownList').innerHTML = `
+                <p style="font-size: 12px; color: #555;">• <strong>राहुल वर्मा (स्टाफ):</strong> ₹${liveSalesData.staff_rahul.total} (${liveSalesData.staff_rahul.bills} बिल)</p>
+                <p style="font-size: 12px; color: #555;">• <strong>अमित कुमार (स्टाफ):</strong> ₹${liveSalesData.staff_amit.total} (${liveSalesData.staff_amit.bills} बिल)</p>
+                <p style="font-size: 12px; color: #555;">• <strong>मालिक (Self):</strong> ₹${liveSalesData.owner.total} (${liveSalesData.owner.bills} बिल)</p>
+            `;
+        } else {
+            let myTotal = liveSalesData[currentUserRole].total;
+            let myBills = liveSalesData[currentUserRole].bills;
+
+            document.getElementById('dashTotalSales').innerText = '₹' + myTotal;
+            document.getElementById('dashSoldUnits').innerText = myBills + ' बिल';
+
+            ownerCard.style.display = 'none';
+            staffCard.style.display = 'block';
+
+            document.getElementById('myPersonalEarnings').innerText = '₹' + myTotal;
+            document.getElementById('myPersonalBills').innerText = myBills + ' बिल';
+        }
+    }
+
+    function switchPage(pageId, element) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
+        document.getElementById(pageId).classList.add('active');
+        if(element) element.classList.add('active');
+    }
+
+    function saveProductOnline() {
+        let name = document.getElementById('pName').value;
+        let price = parseFloat(document.getElementById('pPrice').value);
+        let stock = parseInt(document.getElementById('pStock').value) || 1;
+
+        if(name && price) {
+            let pid = 'p' + (Object.keys(productStocks).length + 1);
+            productStocks[pid] = stock;
+            productPrices[pid] = price;
+
+            let container = document.getElementById('productSelectionList');
+            let div = document.createElement('div');
+            div.className = 'item-select-row';
+            div.id = `row-${pid}`;
+            div.innerHTML = `
+                <div>
+                    <strong>${name}</strong><br>
+                    <span style="font-size:11px; color:#666;">रेट: ₹<span id="rate-${pid}">${price}</span> (लॉक) | स्टॉक: <strong id="stk-${pid}" style="color:green;">${stock}</strong> पीस</span>
+                </div>
+                <input type="number" min="0" value="0" style="width:60px; margin:0;" onchange="calculateCartTotal()" class="cart-qty" data-id="${pid}" data-name="${name}" data-price="${price}">
+            `;
+            container.appendChild(div);
+
+            // एडिट सेलेक्ट ड्रॉपडाउन में भी नया सामान जोड़ें
+            let editSel = document.getElementById('editProductSelect');
+            let opt = document.createElement('option');
+            opt.value = pid;
+            opt.innerText = name;
+            editSel.appendChild(opt);
+
+            alert('✅ नया सामान ऑनलाइन जुड़ गया: ' + name);
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pStock').value = '';
+
+            switchPage('page-home', document.querySelectorAll('.nav-item')[0]);
+        } else {
+            alert('कृपया सामान का नाम और रेट भरें!');
+        }
+    }
+</script>
+
+</body>
+</html>
