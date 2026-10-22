@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JVG STS - SmartShop Billing System</title>
+    <title>JVG SmartTech Suvidha - Billing System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -32,13 +32,13 @@
     <!-- 1. लॉगिन स्क्रीन -->
     <div id="login-container" class="max-w-md mx-auto my-10 p-6 bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-red-100 relative z-10">
         <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-2xl font-black shadow-md">
-                JVG
+            <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-black shadow-md">
+                STS
             </div>
-            <h1 class="text-2xl font-black text-red-600 tracking-tight">JVG SmartTech Suvidha</h1>
+            <h1 class="text-xl font-black text-red-600 tracking-tight">JVG SmartTech Suvidha</h1>
             <p class="text-xs text-gray-500 font-medium">गौरा दुबे, सिसवा बाज़ार, महराजगंज (UP)</p>
             <span class="inline-block mt-2 px-3 py-1 bg-red-50 text-red-700 font-bold text-xs rounded-full border border-red-200">
-                🔒 सुरक्षित शॉप एक्सेस
+                🔒 सुरक्षित शॉप एक्सेस (टाइम-सेव्ड)
             </span>
         </div>
 
@@ -77,12 +77,12 @@
     <div id="app-dashboard" class="hidden-section max-w-lg mx-auto relative z-10">
         <!-- हेडर -->
         <header class="bg-gradient-to-r from-red-600 to-red-800 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-40">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-white text-red-600 font-black rounded-lg flex items-center justify-center text-xs">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-white text-red-600 font-black rounded-xl flex items-center justify-center text-xs shadow">
                     STS
                 </div>
                 <div>
-                    <h2 class="text-base font-black leading-tight">JVG SmartTech</h2>
+                    <h2 class="text-sm font-black leading-tight">JVG SmartTech Suvidha</h2>
                     <p id="display-user-info" class="text-[10px] opacity-90 font-medium">लॉगिन: जगन्नाथ विश्वकर्मा</p>
                 </div>
             </div>
@@ -103,7 +103,7 @@
                 </div>
             </div>
 
-            <!-- TAB 1: होम / डायनामिक बिलिंग काउंटर (+ आइकॉन आधारित) -->
+            <!-- TAB 1: होम / डायनामिक बिलिंग काउंटर -->
             <div id="tab-home" class="tab-content space-y-4">
                 <div class="bg-white/90 backdrop-blur p-4 rounded-2xl shadow-md border border-gray-200/80 space-y-3">
                     <div class="flex justify-between items-center">
@@ -115,20 +115,20 @@
                         </span>
                     </div>
 
-                    <!-- सर्च व स्कैन बार -->
+                    <!-- सर्च व कैमरा स्कैनर बार -->
                     <div class="flex gap-2">
-                        <input type="text" id="home-search-input" onkeyup="searchAndDisplayItems()" placeholder="सामान का नाम या बारकोड खोजें..." class="flex-1 p-2.5 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-500">
-                        <button onclick="triggerScanner()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1">
+                        <input type="text" id="home-search-input" onkeyup="searchAndDisplayItems()" placeholder="सामान का नाम, मॉडल नंबर या बारकोड..." class="flex-1 p-2.5 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-500">
+                        <button onclick="scanIntoInput('home-search-input')" class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1">
                             📷 स्कैन
                         </button>
                     </div>
 
-                    <!-- खोजे गए सामान की लिस्ट (जिन्हें '+' से जोड़ा जाएगा) -->
+                    <!-- खोजे गए सामान की लिस्ट -->
                     <div id="search-results-box" class="space-y-2 max-h-48 overflow-y-auto">
-                        <p class="text-xs text-gray-400 text-center py-2">परेशानी मुक्त बिलिंग: ऊपर सर्च या स्कैन करें</p>
+                        <p class="text-xs text-gray-400 text-center py-2">सामान खोजने के लिए नाम या मॉडल नंबर लिखें</p>
                     </div>
 
-                    <!-- वर्तमान बिल में शामिल सामानों की सूची -->
+                    <!-- बिल में शामिल सामानों की सूची -->
                     <div class="border-t pt-3">
                         <p class="text-xs font-black text-gray-700 mb-2">बिल में जोड़े गए सामान:</p>
                         <div id="active-cart-list" class="divide-y divide-gray-100 text-xs max-h-40 overflow-y-auto pr-1">
@@ -148,47 +148,49 @@
                 </div>
             </div>
 
-            <!-- TAB 2: खोजें व बारकोड स्कैन -->
+            <!-- TAB 2: खोजें व बारकोड स्कैन टैब -->
             <div id="tab-search" class="tab-content hidden-section space-y-4">
                 <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-200 space-y-3">
-                    <h3 class="font-black text-gray-800 text-sm">🔍 बारकोड स्कैनर व माल सर्च</h3>
+                    <h3 class="font-black text-gray-800 text-sm">🔍 उत्पाद खोजें व मॉडल नंबर जाँच</h3>
                     <div class="flex gap-2">
-                        <input type="text" id="tab-search-input" placeholder="सामान का नाम या कोड लिखें..." class="flex-1 p-2.5 border border-gray-300 rounded-xl text-xs font-semibold">
-                        <button onclick="triggerScanner()" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">
-                            स्कैनर चालू करें 📷
+                        <input type="text" id="tab-search-input" placeholder="मॉडल नंबर या नाम लिखें..." class="flex-1 p-2.5 border border-gray-300 rounded-xl text-xs font-semibold">
+                        <button onclick="scanIntoInput('tab-search-input')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">
+                            कैमरा स्कैन 📷
                         </button>
-                    </div>
-                    <div id="scanner-preview" class="hidden-section p-4 bg-gray-900 text-white rounded-xl text-center text-xs space-y-2">
-                        <p class="animate-pulse">📷 कैमरा स्कैनर सक्रिय है... बारकोड सामने लाएं</p>
-                        <button onclick="triggerScanner()" class="px-2.5 py-1 bg-red-600 text-white rounded text-[10px]">बंद करें</button>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: प्रोडक्ट अपलोड सेंटर -->
+            <!-- TAB 3: प्रोडक्ट अपलोड सेंटर (मॉडल नंबर के साथ स्कैनर इनबिल्ट) -->
             <div id="tab-upload" class="tab-content hidden-section space-y-4">
                 <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-200 space-y-3">
                     <h3 class="font-black text-red-600 text-sm flex items-center gap-1.5 border-b pb-2">
-                        <span>📦 नया सामान/प्रोडक्ट अपलोड करें</span>
+                        <span>📦 नया सामान/प्रोडक्ट अपलोड करें (स्कैनर सहित)</span>
                     </h3>
                     <form id="product-upload-form" onsubmit="uploadNewProduct(event)" class="space-y-3 text-xs">
                         <div>
                             <label class="block font-bold text-gray-700 mb-1">सामान का नाम (Product Name)</label>
-                            <input type="text" id="prod-name" placeholder="उदा. Ajanta Bulb 12W" required class="w-full p-2.5 border border-gray-300 rounded-xl">
+                            <input type="text" id="prod-name" placeholder="उदा. boAt Rockerz Neckband" required class="w-full p-2.5 border border-gray-300 rounded-xl">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">बिक्री रेट (₹)</label>
-                                <input type="number" id="prod-price" placeholder="120" required class="w-full p-2.5 border border-gray-300 rounded-xl">
+                                <label class="block font-bold text-gray-700 mb-1">मॉडल नंबर (Model No.)</label>
+                                <div class="flex gap-1">
+                                    <input type="text" id="prod-model" placeholder="उदा. BT-101" required class="w-full p-2.5 border border-gray-300 rounded-xl">
+                                    <button type="button" onclick="scanIntoInput('prod-model')" class="bg-gray-800 text-white px-2.5 rounded-xl text-xs font-bold" title="स्कैन करें">📷</button>
+                                </div>
                             </div>
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">कुल स्टॉक (Pcs)</label>
-                                <input type="number" id="prod-stock" placeholder="10" required class="w-full p-2.5 border border-gray-300 rounded-xl">
+                                <label class="block font-bold text-gray-700 mb-1">बिक्री रेट (₹)</label>
+                                <input type="number" id="prod-price" placeholder="650" required class="w-full p-2.5 border border-gray-300 rounded-xl">
                             </div>
                         </div>
                         <div>
-                            <label class="block font-bold text-gray-700 mb-1">बारकोड / स्कैनर आईडी (Barcode)</label>
-                            <input type="text" id="prod-barcode" placeholder="उदा. 8901234567" class="w-full p-2.5 border border-gray-300 rounded-xl">
+                            <label class="block font-bold text-gray-700 mb-1">बारकोड नंबर (स्केनेबल)</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="prod-barcode" placeholder="उदा. 890123456789" class="w-full p-2.5 border border-gray-300 rounded-xl">
+                                <button type="button" onclick="scanIntoInput('prod-barcode')" class="bg-gray-800 text-white px-2.5 rounded-xl text-xs font-bold" title="स्कैन करें">📷</button>
+                            </div>
                         </div>
                         <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl shadow transition">
                             + डेटाबेस में सेव व अपलोड करें
@@ -255,15 +257,40 @@
 
         let staffDatabase = JSON.parse(localStorage.getItem('jvg_staff_db')) || {};
 
-        // डिफ़ॉल्ट प्रोडक्ट्स डेटाबेस (मास्टर लिस्ट)
         let masterProducts = [
-            { name: "PVC Identity Card Print", price: 50, code: "PVC01" },
-            { name: "Ajanta LED Bulb 12W", price: 120, code: "LED12W" },
-            { name: "boAt Neckband BT-101", price: 650, code: "BT101" },
-            { name: "Online Form & Aadhaar Service", price: 100, code: "FORM01" }
+            { name: "PVC Identity Card Print", model: "PVC-01", price: 50, code: "890101" },
+            { name: "Ajanta LED Bulb 12W", model: "AJ-12W", price: 120, code: "890102" },
+            { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103" },
+            { name: "Online Form & Aadhaar Service", model: "ONLINE-01", price: 100, code: "890104" }
         ];
 
         let currentCart = [];
+
+        // ऑटो-लॉगिन टाइमलाइन चेक (रात 12 से सुबह 4 बजे के बीच रिलॉगिन मांगेगा)
+        window.onload = function() {
+            const savedSession = localStorage.getItem('jvg_session_active');
+            const currentHour = new Date().getHours();
+
+            if (currentHour >= 0 && currentHour < 4) {
+                localStorage.removeItem('jvg_session_active');
+                return;
+            }
+
+            if (savedSession === 'true') {
+                const role = localStorage.getItem('jvg_user_role') || 'owner';
+                const name = localStorage.getItem('jvg_user_name') || 'जगन्नाथ विश्वकर्मा';
+                
+                displayUserInfo.innerText = name + " (लॉगिन सुरक्षित)";
+                if (role === 'owner') {
+                    ownerOnlyCard.classList.remove('hidden-section');
+                    ownerStaffSection.classList.remove('hidden-section');
+                } else {
+                    ownerOnlyCard.classList.add('hidden-section');
+                    ownerStaffSection.classList.add('hidden-section');
+                }
+                openApp();
+            }
+        };
 
         // 1. लॉगिन वैलिडाशन
         loginForm.addEventListener('submit', function(e) {
@@ -274,7 +301,7 @@
 
             if (role === 'owner') {
                 if (phone === '7518314203' && pass === '7518314203') {
-                    displayUserInfo.innerText = "जगन्नाथ विश्वकर्मा (मालिक) 📱 7518314203";
+                    saveSession('owner', 'जगन्नाथ विश्वकर्मा (मालिक)');
                     ownerOnlyCard.classList.remove('hidden-section');
                     ownerStaffSection.classList.remove('hidden-section');
                     openApp();
@@ -283,7 +310,7 @@
                 }
             } else {
                 if (staffDatabase[phone] && staffDatabase[phone].pass === pass) {
-                    displayUserInfo.innerText = staffDatabase[phone].name + " (स्टाफ) 📱 " + phone;
+                    saveSession('staff', staffDatabase[phone].name + ' (स्टाफ)');
                     ownerOnlyCard.classList.add('hidden-section');
                     ownerStaffSection.classList.add('hidden-section');
                     openApp();
@@ -293,12 +320,20 @@
             }
         });
 
+        function saveSession(role, name) {
+            localStorage.setItem('jvg_session_active', 'true');
+            localStorage.setItem('jvg_user_role', role);
+            localStorage.setItem('jvg_user_name', name);
+            displayUserInfo.innerText = name;
+        }
+
         function openApp() {
             loginContainer.classList.add('hidden-section');
             appDashboard.classList.remove('hidden-section');
         }
 
         function logout() {
+            localStorage.removeItem('jvg_session_active');
             appDashboard.classList.add('hidden-section');
             loginContainer.classList.remove('hidden-section');
             loginForm.reset();
@@ -341,30 +376,35 @@
             document.getElementById('new-staff-pass').value = '';
         }
 
-        // 4. नया सामान अपलोड
+        // 4. नया सामान मॉडल नंबर के साथ अपलोड
         function uploadNewProduct(e) {
             e.preventDefault();
             const name = document.getElementById('prod-name').value;
+            const model = document.getElementById('prod-model').value;
             const price = parseFloat(document.getElementById('prod-price').value);
-            const code = document.getElementById('prod-barcode').value || 'GEN01';
+            const code = document.getElementById('prod-barcode').value || 'GEN-' + Math.floor(Math.random()*1000);
 
-            masterProducts.push({ name, price, code });
-            alert(`'${name}' सफलतापूर्वक डेटाबेस में अपलोड हो गया!`);
+            masterProducts.push({ name, model, price, code });
+            alert(`'${name}' (मॉडल: ${model}) सफलतापूर्वक अपलोड हो गया!`);
             document.getElementById('product-upload-form').reset();
             switchTab('tab-home');
         }
 
-        // 5. सर्च और '+' आइकॉन से जोड़ना
+        // 5. सर्च और मॉडल नंबर आधारित खोज
         function searchAndDisplayItems() {
             const query = document.getElementById('home-search-input').value.toLowerCase();
             const box = document.getElementById('search-results-box');
             
             if (!query) {
-                box.innerHTML = `<p class="text-xs text-gray-400 text-center py-2">परेशानी मुक्त बिलिंग: ऊपर सर्च या स्कैन करें</p>`;
+                box.innerHTML = `<p class="text-xs text-gray-400 text-center py-2">सामान खोजने के लिए नाम या मॉडल नंबर लिखें</p>`;
                 return;
             }
 
-            const matched = masterProducts.filter(p => p.name.toLowerCase().includes(query) || p.code.toLowerCase().includes(query));
+            const matched = masterProducts.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.model.toLowerCase().includes(query) || 
+                p.code.toLowerCase().includes(query)
+            );
             
             if (matched.length === 0) {
                 box.innerHTML = `<p class="text-xs text-red-500 text-center py-2">कोई सामान नहीं मिला ('अपलोड' टैब से जोड़ें)</p>`;
@@ -374,11 +414,11 @@
             box.innerHTML = '';
             matched.forEach(item => {
                 const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-gray-50 p-2 rounded-xl border border-gray-200 text-xs";
+                div.className = "flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-200 text-xs";
                 div.innerHTML = `
                     <div>
-                        <p class="font-bold text-gray-800">${item.name}</p>
-                        <p class="text-[10px] text-gray-500">₹${item.price} | कोड: ${item.code}</p>
+                        <p class="font-bold text-gray-800">${item.name} <span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-mono">[${item.model}]</span></p>
+                        <p class="text-[10px] text-gray-500">रेट: ₹${item.price} | बारकोड: ${item.code}</p>
                     </div>
                     <button onclick="addToCart('${item.code}')" class="w-8 h-8 bg-red-600 hover:bg-red-700 text-white font-black rounded-lg shadow flex items-center justify-center text-base">
                         +
@@ -388,7 +428,19 @@
             });
         }
 
-        // 6. कार्ट में जोड़ना और टोटल जोड़ना
+        // 6. कैमरा स्कैनर इनबिल्ट फंक्शन (जो सीधे बॉक्स में कोड भर देगा)
+        function scanIntoInput(targetId) {
+            const simulatedScannedCode = prompt("📷 [कैमरा स्कैनर सिमुलेशन]\nकृपया बारकोड या मॉडल नंबर दर्ज/स्कैन करें:");
+            if (simulatedScannedCode) {
+                document.getElementById(targetId).value = simulatedScannedCode;
+                // यदि यह होम सर्च है, तो तुरंत सर्च चलाएं
+                if(targetId === 'home-search-input') {
+                    searchAndDisplayItems();
+                }
+            }
+        }
+
+        // 7. कार्ट और बिल मैनेजमेंट
         function addToCart(code) {
             const product = masterProducts.find(p => p.code === code);
             if (!product) return;
@@ -418,7 +470,7 @@
                 div.className = "py-2 flex justify-between items-center";
                 div.innerHTML = `
                     <div>
-                        <p class="font-bold text-gray-800">${item.name}</p>
+                        <p class="font-bold text-gray-800">${item.name} <span class="text-[10px] text-gray-400">(${item.model})</span></p>
                         <p class="text-[10px] text-gray-500">₹${item.price} × ${item.qty}</p>
                     </div>
                     <div class="flex items-center gap-2">
@@ -434,12 +486,6 @@
         function removeFromCart(index) {
             currentCart.splice(index, 1);
             renderCart();
-        }
-
-        function triggerScanner() {
-            const preview = document.getElementById('scanner-preview');
-            if(preview) preview.classList.toggle('hidden-section');
-            else alert('स्कैनर सक्रिय है...');
         }
 
         function generateAirtelQR() {
