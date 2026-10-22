@@ -7,11 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-4 pb-20">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow border space-y-4">
-        <div class="flex justify-between items-center border-b pb-2">
-            <h3 class="font-black text-red-600 text-sm">📦 नया प्रोडक्ट अपलोड करें</h3>
-            <a href="billing.html" class="text-xs bg-gray-200 px-3 py-1 rounded font-bold">← बिलिंग पर जाएं</a>
-        </div>
+    <div class="flex justify-between items-center border-b pb-2">
+    <h3 class="font-black text-red-600 text-sm">📦 नया प्रोडक्ट अपलोड करें</h3>
+    <a href="biling.html" class="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow">
+        🏠 होम (बिलिंग पर जाएं)
+    </a>
+</div>
 
         <form onsubmit="saveProduct(event)" class="space-y-3 text-xs">
             <div>
@@ -33,8 +34,8 @@
                 <input type="text" id="p-code" placeholder="उदा. 890123456" required class="w-full p-2.5 border rounded-xl">
             </div>
             <div>
-                <label class="block font-bold mb-1">उत्पाद की फोटो (Image Upload)</label>
-                <input type="file" id="p-img" accept="image/*" class="w-full p-2 border rounded-xl text-xs bg-gray-50">
+                <label class="block font-bold mb-1">उत्पाद की फोटो (कैमरा या गैलरी)</label>
+                <input type="file" id="p-img" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50">
             </div>
             <button type="submit" class="w-full py-3 bg-green-600 text-white font-black rounded-xl shadow">+ डेटाबेस में सेव करें</button>
         </form>
@@ -64,50 +65,10 @@
             let masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')) || [];
             masterProducts.push({ name, model, price, code, image });
             localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
-            alert(`'${name}' (बारकोड: ${code}) सफलता पूर्वक सेव हो गया!`);
+            alert(`'${name}' सफलतापूर्वक सेव हो गया!`);
             document.querySelector('form').reset();
         }
     </script>
 </body>
 </html>
 
-<!-- प्रोडक्ट अपलोड सेंटर -->
-<div id="tab-upload" class="tab-content space-y-4">
-    <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-200 space-y-3">
-        <h3 class="font-black text-red-600 text-sm border-b pb-2">📦 नया सामान/प्रोडक्ट अपलोड करें</h3>
-        <form id="product-upload-form" onsubmit="uploadNewProduct(event)" class="space-y-3 text-xs">
-            <div>
-                <label class="block font-bold text-gray-700 mb-1">सामान का नाम</label>
-                <input type="text" id="prod-name" placeholder="उदा. boAt Rockerz" required class="w-full p-2.5 border border-gray-300 rounded-xl">
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">मॉडल नंबर</label>
-                    <input type="text" id="prod-model" placeholder="उदा. BT-101" required class="w-full p-2.5 border border-gray-300 rounded-xl">
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">बिक्री रेट (₹)</label>
-                    <input type="number" id="prod-price" placeholder="650" required class="w-full p-2.5 border border-gray-300 rounded-xl">
-                </div>
-            </div>
-            <button type="submit" class="w-full py-3 bg-green-600 text-white font-black rounded-xl shadow">+ डेटाबेस में सेव करें</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    function uploadNewProduct(e) {
-        e.preventDefault();
-        const name = document.getElementById('prod-name').value;
-        const model = document.getElementById('prod-model').value;
-        const price = parseFloat(document.getElementById('prod-price').value);
-        const code = 'GEN-' + Math.floor(Math.random()*1000);
-
-        let masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')) || [];
-        masterProducts.push({ name, model, price, code });
-        localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
-
-        alert(`'${name}' सफलतापूर्वक सेव हो गया!`);
-        document.getElementById('product-upload-form').reset();
-    }
-</script>

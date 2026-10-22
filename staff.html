@@ -7,10 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow border space-y-4">
-        <div class="flex justify-between items-center border-b pb-2">
-            <h3 class="font-black text-red-600 text-sm">👤 स्टाफ मैनेजमेंट (नया स्टाफ जोड़ें)</h3>
-            <a href="billing.html" class="text-xs bg-gray-200 px-3 py-1 rounded font-bold">← वापस जाएं</a>
+   div class="flex justify-between items-center border-b pb-2">
+    <h3 class="font-black text-red-600 text-sm">👤 स्टाफ मैनेजमेंट</h3>
+    <a href="biling.html" class="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow">
+        🏠 होम (बिलिंग पर जाएं)
+    </a>
+</div>
         </div>
 
         <div class="space-y-3 text-xs">
@@ -39,7 +41,7 @@
         window.onload = function() {
             if(localStorage.getItem('jvg_user_role') !== 'owner') {
                 alert('यह पेज केवल मालिक (Owner) के लिए है!');
-                window.location.href = 'billing.html';
+                window.location.href = 'biling.html';
             }
             renderStaffList();
         }
@@ -78,3 +80,5 @@
     </script>
 </body>
 </html>
+
+<

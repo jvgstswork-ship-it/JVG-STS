@@ -3,53 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JVG SmartTech Suvidha - Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>JVG STS - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
-        <h1 class="text-xl font-bold">JVG SmartTech Suvidha (JVG STS)</h1>
-        <a href="login.html" class="bg-red-500 px-4 py-2 rounded text-sm font-semibold hover:bg-red-600">लॉग आउट / लॉगिन</a>
-    </header>
-
-    <!-- Main Content / Categories -->
-    <main class="max-w-4xl mx-auto p-6 mt-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">दुकान की सेवाएँ (Services Dashboard)</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Billing / Payment Card -->
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
-                <h3 class="text-lg font-bold text-blue-600 mb-2">💳 बिलिंग & पेमेंट</h3>
-                <p class="text-gray-600 text-sm mb-4">कस्टमर का बिल बनाएं और पेमेंट स्वीकार करें।</p>
-                <a href="biling.html" class="inline-block bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700">ओपन करें</a>
-            </div>
-
-            <!-- Product Upload Card -->
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
-                <h3 class="text-lg font-bold text-green-600 mb-2">📦 प्रोडक्ट / सर्विस ऐड</h3>
-                <p class="text-gray-600 text-sm mb-4">दुकान के नए सामान या सर्विसेज को अपलोड करें।</p>
-                <a href="upload.html" class="inline-block bg-green-600 text-white px-4 py-2 rounded font-medium hover:bg-green-700">ओपन करें</a>
-            </div>
-
-            <!-- Staff Management Card -->
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
-                <h3 class="text-lg font-bold text-purple-600 mb-2">👥 स्टाफ मैनेजमेंट</h3>
-                <p class="text-gray-600 text-sm mb-4">नया स्टाफ जोड़ें और उनकी जानकारी मैनेज करें।</p>
-                <a href="staff.html" class="inline-block bg-purple-600 text-white px-4 py-2 rounded font-medium hover:bg-purple-700">ओपन करें</a>
-            </div>
-
-            <!-- History Card -->
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
-                <h3 class="text-lg font-bold text-orange-600 mb-2">📊 ट्रांजैक्शन हिस्ट्री</h3>
-                <p class="text-gray-600 text-sm mb-4">पुराने बिल और लेन-देन का पूरा रिकॉर्ड देखें।</p>
-                <a href="history.html" class="inline-block bg-orange-600 text-white px-4 py-2 rounded font-medium hover:bg-orange-700">ओपन करें</a>
-            </div>
-
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white p-6 rounded-2xl shadow-xl border border-red-100">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-black shadow">STS</div>
+            <h1 class="text-xl font-black text-red-600">JVG SmartTech Suvidha</h1>
+            <p class="text-xs text-gray-500">गौरा दुबे, सिसवा बाज़ार, महराजगंज (UP)</p>
         </div>
-    </main>
 
+        <form onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">रोल चुनें</label>
+                <select id="login-role" class="w-full p-3 border rounded-xl text-sm font-semibold bg-white">
+                    <option value="owner">मालिक (Owner)</option>
+                    <option value="staff">स्टाफ (Staff Operator)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">मोबाइल नंबर</label>
+                <input type="tel" id="login-id" placeholder="मोबाइल नंबर दर्ज करें" required class="w-full p-3 border rounded-xl text-sm font-semibold">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">पासवर्ड</label>
+                <input type="password" id="login-pass" placeholder="पासवर्ड दर्ज करें" required class="w-full p-3 border rounded-xl text-sm font-semibold">
+            </div>
+            <div class="flex justify-end items-center text-xs">
+                <button type="button" onclick="forgotPass()" class="text-red-600 font-bold hover:underline">पासवर्ड भूल गए?</button>
+            </div>
+            <button type="submit" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow text-sm">लॉगिन करें</button>
+        </form>
+    </div>
+
+    <script>
+        // ऑटो-सेशन चेक (रात 12 से सुबह 4 बजे रीसेट)
+        window.onload = function() {
+            const currentHour = new Date().getHours();
+
+            if (currentHour >= 0 && currentHour < 4) {
+                localStorage.removeItem('jvg_session_active');
+                localStorage.removeItem('jvg_user_role');
+                localStorage.removeItem('jvg_user_name');
+                return;
+            }
+
+            const savedSession = localStorage.getItem('jvg_session_active');
+            if (savedSession === 'true') {
+                window.location.href = 'biling.html';
+            }
+        };
+
+        function forgotPass() {
+            const role = document.getElementById('login-role').value;
+            if(role === 'owner') {
+                alert('ओनर (मालिक) पासवर्ड आपका रजिस्टर्ड मोबाइल नंबर है।');
+            } else {
+                alert('स्टाफ पासवर्ड के लिए दुकान मालिक से संपर्क करें।');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const role = document.getElementById('login-role').value;
+            const phone = document.getElementById('login-id').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            let staffDb = JSON.parse(localStorage.getItem('jvg_staff_db')) || {};
+
+            if (role === 'owner') {
+                if (phone === '7518314203' && pass === '7518314203') {
+                    localStorage.setItem('jvg_session_active', 'true');
+                    localStorage.setItem('jvg_user_role', 'owner');
+                    localStorage.setItem('jvg_user_name', 'जगन्नाथ विश्वकर्मा (मालिक)');
+                    window.location.href = 'biling.html';
+                } else {
+                    alert('गलत ओनर मोबाइल नंबर या पासवर्ड!');
+                }
+            } else {
+                if (staffDb[phone] && staffDb[phone].pass === pass) {
+                    localStorage.setItem('jvg_session_active', 'true');
+                    localStorage.setItem('jvg_user_role', 'staff');
+                    localStorage.setItem('jvg_user_name', staffDb[phone].name + ' (स्टाफ)');
+                    window.location.href = 'biling.html';
+                } else {
+                    alert('गलत स्टाफ मोबाइल नंबर या पासवर्ड!');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
