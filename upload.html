@@ -113,7 +113,7 @@
                     newProd.image = evt.target.result;
                     masterProducts.unshift(newProd);
                     localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
-                    alert('उत्पाद सफलतापूर्वक सेव हो गया!');
+                    alert('उत्पाद सफलतापूर्वक सेव हो गया! OK ');
                     window.location.href = 'biling.html';
                 };
                 reader.readAsDataURL(fileInput.files[0]);
