@@ -55,12 +55,6 @@
 
     <script>
         window.onload = function() {
-            // Check session safely without forced redirect loops
-            if (localStorage.getItem('jvg_session_active') !== 'true') {
-                alert("कृपया पहले लॉगिन करें!");
-                window.location.replace('index.html');
-                return;
-            }
             renderStaffList();
         };
 
@@ -124,7 +118,6 @@
                 alert("नया स्टाफ सफलतापूर्वक जोड़ दिया गया!");
             }
 
-            // Save without touching session keys
             localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
             document.getElementById('staff-form').reset();
             renderStaffList();
