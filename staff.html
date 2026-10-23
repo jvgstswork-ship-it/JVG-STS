@@ -6,79 +6,151 @@
     <title>JVG STS - Staff Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-   div class="flex justify-between items-center border-b pb-2">
-    <h3 class="font-black text-red-600 text-sm">👤 स्टाफ मैनेजमेंट</h3>
-    <a href="biling.html" class="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow">
-        🏠 होम (बिलिंग पर जाएं)
-    </a>
-</div>
+<body class="bg-gray-100 min-h-screen p-4 font-sans pb-20">
+    <div class="max-w-md mx-auto space-y-5">
+        
+        <!-- Add/Edit Staff Form -->
+        <div class="bg-white p-5 rounded-3xl shadow-xl border space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h2 id="staff-form-title" class="font-black text-red-600 text-sm">👤 नया स्टाफ जोड़ें</h2>
+                <a href="biling.html" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow">
+                    🏠 होम (बिलिंग)
+                </a>
+            </div>
+
+            <form id="staff-form" onsubmit="addStaff(event)" class="space-y-3">
+                <input type="hidden" id="staff-edit-index" value="-1">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">स्टाफ का नाम</label>
+                    <input type="text" id="s-name" placeholder="उदा. अमित कुमार" required class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">मोबाइल नंबर (लॉगिन ID)</label>
+                    <input type="tel" id="s-phone" placeholder="उदा. 9876543210" required class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">पासवर्ड</label>
+                    <input type="text" id="s-pass" placeholder="पासवर्ड" required class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                </div>
+
+                <button type="submit" id="staff-submit-btn" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-xs shadow">
+                    + नया स्टाफ सेव करें
+                </button>
+            </form>
         </div>
 
-        <div class="space-y-3 text-xs">
-            <div>
-                <label class="block font-bold mb-1">स्टाफ का नाम</label>
-                <input type="text" id="staff-name" placeholder="उदा. राहुल कुमार" class="w-full p-2.5 border rounded-xl">
+        <!-- Staff List & Manage Section -->
+        <div class="bg-white p-5 rounded-3xl shadow-xl border space-y-3">
+            <h3 class="font-black text-gray-800 text-xs border-b pb-2 flex justify-between items-center">
+                <span>👥 मौजूदा स्टाफ की सूची (Manage Staff)</span>
+                <span id="staff-count" class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+            </h3>
+
+            <div id="staff-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <!-- Staff list -->
             </div>
-            <div>
-                <label class="block font-bold mb-1">मोबाइल नंबर (Login ID)</label>
-                <input type="tel" id="staff-phone" placeholder="उदा. 9876543210" class="w-full p-2.5 border rounded-xl">
-            </div>
-            <div>
-                <label class="block font-bold mb-1">पासवर्ड</label>
-                <input type="password" id="staff-pass" placeholder="पासवर्ड (XXXX)" class="w-full p-2.5 border rounded-xl">
-            </div>
-            <button onclick="registerStaff()" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-black rounded-xl shadow">+ नया स्टाफ रजिस्टर करें</button>
         </div>
 
-        <div class="border-t pt-3">
-            <p class="font-bold text-xs text-gray-700 mb-2">रजिस्टर्ड स्टाफ लिस्ट:</p>
-            <div id="staff-list-box" class="space-y-1 text-xs text-gray-600"></div>
-        </div>
     </div>
 
     <script>
         window.onload = function() {
-            if(localStorage.getItem('jvg_user_role') !== 'owner') {
-                alert('यह पेज केवल मालिक (Owner) के लिए है!');
-                window.location.href = 'biling.html';
-            }
             renderStaffList();
-        }
+        };
 
-        function registerStaff() {
-            let name = document.getElementById('staff-name').value;
-            let phone = document.getElementById('staff-phone').value;
-            let pass = document.getElementById('staff-pass').value;
-
-            if(!name || !phone || !pass) { alert('कृपया सभी जानकारी भरें!'); return; }
-
-            let staffDb = JSON.parse(localStorage.getItem('jvg_staff_db')) || {};
-            staffDb[phone] = { name: name, pass: pass };
-            localStorage.setItem('jvg_staff_db', JSON.stringify(staffDb));
-
-            alert(`स्टाफ '${name}' सफलता पूर्वक जुड़ गया!`);
-            document.getElementById('staff-name').value = '';
-            document.getElementById('staff-phone').value = '';
-            document.getElementById('staff-pass').value = '';
-            renderStaffList();
+        function getStaffList() {
+            try {
+                return JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
+            } catch(e) { return []; }
         }
 
         function renderStaffList() {
-            let staffDb = JSON.parse(localStorage.getItem('jvg_staff_db')) || {};
-            let box = document.getElementById('staff-list-box');
-            let keys = Object.keys(staffDb);
-            if(keys.length === 0) { box.innerHTML = '<p class="text-gray-400">कोई स्टाफ रजिस्टर नहीं है।</p>'; return; }
+            let staffList = getStaffList();
+            let countBox = document.getElementById('staff-count');
+            if(countBox) countBox.innerText = staffList.length;
+            let box = document.getElementById('staff-list');
+            if(!box) return;
             box.innerHTML = '';
-            keys.forEach(k => {
-                box.innerHTML += `<div class="bg-gray-50 p-2 rounded border flex justify-between items-center">
-                    <span><b>${staffDb[k].name}</b> (${k})</span>
-                    <span class="text-green-600 font-bold">एक्टिव</span>
-                </div>`;
+
+            if (staffList.length === 0) {
+                box.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">कोई स्टाफ नहीं जोड़ा गया है</p>';
+                return;
+            }
+
+            staffList.forEach((s, index) => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border text-xs">
+                        <div>
+                            <p class="font-bold text-gray-800">👤 ${s.name}</p>
+                            <p class="text-[10px] text-gray-500">📞 ${s.phone} | पास: ${s.pass}</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button type="button" onclick="editStaff(${index})" class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold shadow">
+                                ✏️ एडिट
+                            </button>
+                            <button type="button" onclick="deleteStaff('${s.phone}')" class="bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold shadow">
+                                🗑️ हटाएं
+                            </button>
+                        </div>
+                    </div>
+                `;
             });
+        }
+
+        function addStaff(e) {
+            e.preventDefault();
+            let name = document.getElementById('s-name').value.trim();
+            let phone = document.getElementById('s-phone').value.trim();
+            let pass = document.getElementById('s-pass').value.trim();
+            let editIdx = parseInt(document.getElementById('staff-edit-index').value);
+
+            let staffList = getStaffList();
+
+            if (editIdx > -1) {
+                staffList[editIdx] = { ...staffList[editIdx], name, phone, pass };
+                alert("स्टाफ की जानकारी अपडेट हो गई!");
+                document.getElementById('staff-edit-index').value = -1;
+                document.getElementById('staff-form-title').innerText = '👤 नया स्टाफ जोड़ें';
+                document.getElementById('staff-submit-btn').innerText = '+ नया स्टाफ सेव करें';
+            } else {
+                let exists = staffList.find(x => x.phone === phone);
+                if (exists) {
+                    alert("यह मोबाइल नंबर पहले से दर्ज है!");
+                    return;
+                }
+                staffList.push({ name, phone, pass, role: "staff" });
+                alert("नया स्टाफ सफलतापूर्वक जोड़ दिया गया!");
+            }
+
+            localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
+            document.getElementById('staff-form').reset();
+            renderStaffList();
+        }
+
+        function editStaff(index) {
+            let staffList = getStaffList();
+            let s = staffList[index];
+            document.getElementById('s-name').value = s.name;
+            document.getElementById('s-phone').value = s.phone;
+            document.getElementById('s-pass').value = s.pass;
+            document.getElementById('staff-edit-index').value = index;
+
+            document.getElementById('staff-form-title').innerText = '✏️ स्टाफ एडिट करें';
+            document.getElementById('staff-submit-btn').innerText = '✓ अपडेट करें';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteStaff(phone) {
+            if (confirm("क्या आप सच में इस स्टाफ मेंबर को हटाना चाहते हैं?")) {
+                let staffList = getStaffList();
+                staffList = staffList.filter(s => s.phone !== phone);
+                localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
+                renderStaffList();
+                alert("स्टाफ मेंबर हटा दिया गया!");
+            }
         }
     </script>
 </body>
 </html>
-
-<

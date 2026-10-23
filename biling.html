@@ -12,21 +12,21 @@
 </head>
 <body class="bg-gray-100 min-h-screen pb-28 font-sans">
 
-    <!-- टॉप हेडर -->
+    <!-- Top Header -->
     <header class="bg-red-700 text-white p-3 flex justify-between items-center shadow-md sticky top-0 z-40">
         <div>
             <h2 class="text-sm font-black">JVG STS</h2>
-            <p id="user-display" class="text-[10px] opacity-90">लॉगिन: जाँच हो रही है...</p>
+            <p id="user-display" class="text-[10px] opacity-90">लॉगिन: ऑपरेटर</p>
         </div>
         <button onclick="logout()" class="text-xs bg-white/20 px-3 py-1 rounded-lg font-bold">लॉगआउट</button>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-4">
         
-        <!-- 1. होम / बिलिंग काउंटर टैब -->
+        <!-- 1. Home / Billing Counter Tab -->
         <div id="tab-home" class="tab-content space-y-4">
             
-            <!-- डैशबोर्ड समरी कार्ड -->
+            <!-- Dashboard Summary Card -->
             <div class="bg-gradient-to-br from-red-600 to-red-800 text-white p-4 rounded-3xl shadow-xl space-y-3">
                 <div class="flex justify-between items-center text-xs border-b border-red-500 pb-2">
                     <span class="font-bold">👤 जगन्नाथ विश्वकर्मा</span>
@@ -52,12 +52,13 @@
                 </div>
             </div>
 
-            <!-- बिलिंग काउंटर बॉक्स -->
+            <!-- Billing Box -->
             <div class="bg-white p-4 rounded-2xl shadow-md border space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-black text-gray-800 text-sm flex items-center gap-1">
                         🛍️ <span>सामान चुनें और बिल बनाएं:</span>
                     </h3>
+                    <button type="button" onclick="filterCategory('all')" class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[11px] font-bold">सब देखें</button>
                 </div>
 
                 <div>
@@ -65,33 +66,33 @@
                     <input type="tel" id="customer-phone" placeholder="उदा. 9876543210" class="w-full p-2.5 border rounded-xl text-xs font-semibold">
                 </div>
 
-                <!-- खोज और कैमरा स्कैन -->
+                <!-- Search & Camera Scan -->
                 <div class="flex gap-2">
                     <input type="text" id="home-search-input" onkeyup="renderProductsList()" placeholder="सामान का नाम लिखकर छांटें..." class="flex-1 p-2.5 border rounded-xl text-xs font-semibold">
                     <button type="button" onclick="startCameraScanner('home-search-input')" class="bg-purple-600 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1">📷 स्कैन</button>
                 </div>
 
-                <!-- कैमरा व्यू स्क्रीन -->
+                <!-- Camera View Screen -->
                 <div id="reader-container" class="hidden-section bg-black p-3 rounded-2xl border border-red-500 relative">
                     <div id="reader" class="w-full rounded-xl overflow-hidden"></div>
                     <button type="button" onclick="stopCameraScanner()" class="mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-xl text-xs">स्कैनर बंद करें ✕</button>
                 </div>
 
-                <!-- सामान की सीधी लिस्ट (प्लस और माइनस बटन के साथ) -->
+                <!-- Products Direct List -->
                 <div class="space-y-2">
-                    <p class="text-[11px] font-black text-gray-500 border-b pb-1">उपलब्ध सामानों की सूची व मात्रा:</p>
+                    <p class="text-[11px] font-black text-gray-500 border-b pb-1">उपलब्ध सामानों की सूची:</p>
                     <div id="master-products-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
-                        <!-- JS से लोड होगा -->
+                        <!-- JS Render -->
                     </div>
                 </div>
 
-                <!-- कुल बिल राशि -->
+                <!-- Total Bill Amount -->
                 <div class="pt-3 border-t flex justify-between items-center font-black">
                     <span class="text-xs text-gray-600 uppercase">कुल बिल राशि:</span>
                     <span class="text-2xl text-red-600">₹<span id="bill-total">0</span></span>
                 </div>
 
-                <!-- फिक्स QR कोड बटन -->
+                <!-- Fix QR Button -->
                 <button type="button" onclick="generateQR()" class="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl text-xs shadow flex items-center justify-center gap-1">
                     🔒 कंटिन्यू करें & फिक्स QR कोड बनाएं
                 </button>
@@ -121,7 +122,7 @@
                 </button>
             </div>
 
-            <!-- आज की बिक्री इतिहास -->
+            <!-- Sales History -->
             <div class="bg-white p-4 rounded-2xl shadow-md border space-y-2">
                 <h3 class="font-black text-gray-800 text-sm flex items-center justify-between border-b pb-2">
                     <span>📜 आज की बिक्री का इतिहास</span>
@@ -133,7 +134,7 @@
             </div>
         </div>
 
-        <!-- 2. खोजें व कैटेगरी टैब -->
+        <!-- 2. Search/Category Tab -->
         <div id="tab-search" class="tab-content hidden-section space-y-4">
             <div class="bg-white p-4 rounded-2xl shadow border space-y-3">
                 <h3 class="font-black text-gray-800 text-sm">🔍 श्रेणी अनुसार सामान (Categories)</h3>
@@ -159,7 +160,7 @@
             </div>
         </div>
 
-        <!-- 3. अपलोड टैब का शॉर्टकट -->
+        <!-- 3. Upload Tab Shortcut -->
         <div id="tab-upload" class="tab-content hidden-section space-y-4">
             <div class="bg-white p-4 rounded-2xl shadow border text-center space-y-3">
                 <h3 class="font-black text-red-600 text-sm">📦 नया प्रोडक्ट अपलोड करें</h3>
@@ -169,7 +170,7 @@
             </div>
         </div>
 
-        <!-- 4. प्रोफ़ाइल टैब -->
+        <!-- 4. Profile Tab -->
         <div id="tab-profile" class="tab-content hidden-section space-y-4">
             <div id="owner-staff-box" class="hidden-section bg-white p-4 rounded-2xl shadow border text-center">
                 <a href="staff.html" class="inline-block py-2 px-4 bg-yellow-500 text-gray-950 font-black rounded-xl text-xs">
@@ -184,7 +185,7 @@
         </div>
     </main>
 
-    <!-- SUCCESS RECEIPT MODAL -->
+    <!-- Success Modal -->
     <div id="success-modal" class="hidden-section fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center space-y-3 shadow-2xl">
             <div class="flex justify-between items-center border-b pb-2">
@@ -210,7 +211,7 @@
         </div>
     </div>
 
-    <!-- बॉटम नेविगेशन बार -->
+    <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex justify-around py-2.5 shadow-2xl z-50 rounded-t-2xl">
         <button type="button" onclick="switchTab('tab-home')" id="nav-tab-home" class="flex flex-col items-center text-red-600 font-black text-[11px]">
             <span class="text-base">🏠</span><span>होम</span>
@@ -227,11 +228,19 @@
     </nav>
 
     <script>
-        let masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')) || [
-            { name: "Ajanta LED Bulb 12W", model: "AJ-12W", price: 120, code: "890102", stock: 5, category: "Electronics" },
-            { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 3, category: "Electronics" },
-            { name: "PVC Identity Card Print", model: "PVC-01", price: 50, code: "890101", stock: 22, category: "Digital" }
-        ];
+        let masterProducts = [];
+        try {
+            masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')) || [];
+        } catch(e) { masterProducts = []; }
+
+        if(!masterProducts || masterProducts.length === 0) {
+            masterProducts = [
+                { name: "Ajanta LED Bulb 12W", model: "AJ-12W", price: 120, code: "890102", stock: 5, category: "Electronics" },
+                { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 3, category: "Electronics" },
+                { name: "PVC Identity Card Print", model: "PVC-01", price: 50, code: "890101", stock: 22, category: "Digital" }
+            ];
+            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+        }
 
         let selectedQuantities = {};
         let selectedCategoryFilter = 'all';
@@ -245,16 +254,11 @@
         let customerPhone = "";
 
         window.onload = function() {
-            if (localStorage.getItem('jvg_session_active') !== 'true') {
-                window.location.href = 'index.html';
-                return;
-            }
-            document.getElementById('user-display').innerText = "लॉगिन: " + (localStorage.getItem('jvg_user_name') || 'ऑपरेटर');
+            let uName = localStorage.getItem('jvg_user_name') || 'ऑपरेटर';
+            document.getElementById('user-display').innerText = "लॉगिन: " + uName;
             
             masterProducts.forEach(p => { 
-                if(selectedQuantities[p.code] === undefined) {
-                    selectedQuantities[p.code] = 0; 
-                }
+                selectedQuantities[p.code] = 0; 
             });
 
             updateDashboardStats();
@@ -262,7 +266,8 @@
             renderSalesHistory();
 
             if (localStorage.getItem('jvg_user_role') === 'owner') {
-                document.getElementById('owner-staff-box').classList.remove('hidden-section');
+                let obox = document.getElementById('owner-staff-box');
+                if(obox) obox.classList.remove('hidden-section');
             }
         };
 
@@ -272,7 +277,7 @@
             document.getElementById('dash-total-items').innerText = masterProducts.length;
             document.getElementById('dash-total-bills').innerText = totalBillsCount;
             
-            let totalStock = masterProducts.reduce((acc, curr) => acc + (curr.stock || 10), 0);
+            let totalStock = masterProducts.reduce((acc, curr) => acc + (parseInt(curr.stock) || 10), 0);
             document.getElementById('dash-total-stock').innerText = totalStock;
         }
 
@@ -284,7 +289,8 @@
         function switchTab(tabId) {
             stopCameraScanner();
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
-            document.getElementById(tabId).classList.remove('hidden-section');
+            let activeTab = document.getElementById(tabId);
+            if(activeTab) activeTab.classList.remove('hidden-section');
 
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.remove('text-red-600', 'font-black');
@@ -304,12 +310,14 @@
         }
 
         function renderProductsList() {
-            let q = document.getElementById('home-search-input').value.toLowerCase();
+            let searchElem = document.getElementById('home-search-input');
+            let q = searchElem ? searchElem.value.toLowerCase() : '';
             let box = document.getElementById('master-products-list');
+            if(!box) return;
             box.innerHTML = '';
 
             let filtered = masterProducts.filter(p => {
-                let matchSearch = p.name.toLowerCase().includes(q) || p.model.toLowerCase().includes(q) || p.code.toLowerCase().includes(q);
+                let matchSearch = (p.name || '').toLowerCase().includes(q) || (p.model || '').toLowerCase().includes(q) || (p.code || '').toLowerCase().includes(q);
                 let matchCat = (selectedCategoryFilter === 'all') || (p.category === selectedCategoryFilter);
                 return matchSearch && matchCat;
             });
@@ -380,7 +388,7 @@
         }
 
         function autoAddToCartByCode(codeText) {
-            let found = masterProducts.find(x => x.code === codeText || x.model.toLowerCase() === codeText.toLowerCase());
+            let found = masterProducts.find(x => x.code === codeText || (x.model && x.model.toLowerCase() === codeText.toLowerCase()));
             if(found) {
                 selectedQuantities[found.code] = (selectedQuantities[found.code] || 0) + 1;
                 renderProductsList();
@@ -421,7 +429,7 @@
             lastReceiptText = encodeURIComponent(textMsg);
 
             let timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            salesHistory.unshift({ time: timeStr, amount: lastAmount, seller: localStorage.getItem('jvg_user_name') });
+            salesHistory.unshift({ time: timeStr, amount: lastAmount, seller: localStorage.getItem('jvg_user_name') || 'ऑपरेटर' });
             localStorage.setItem('jvg_sales_history', JSON.stringify(salesHistory));
             renderSalesHistory();
 
