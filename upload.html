@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JVG STS - Product Upload & Manage</title>
+    <title>JVG STS - Product Upload</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
@@ -13,12 +13,9 @@
 <body class="bg-gray-100 min-h-screen p-4 font-sans pb-20">
     <div class="max-w-md mx-auto space-y-5">
         
-        <!-- Product Add/Edit Form -->
         <div class="bg-white p-5 rounded-3xl shadow-xl border space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h2 id="form-title" class="font-black text-red-600 text-sm flex items-center gap-1">
-                    <span>📦 नया प्रोडक्ट अपलोड करें</span>
-                </h2>
+                <h2 id="form-title" class="font-black text-red-600 text-sm">📦 नया प्रोडक्ट अपलोड करें</h2>
                 <a href="biling.html" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow">
                     🏠 होम (बिलिंग)
                 </a>
@@ -51,17 +48,13 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1">बारकोड नंबर</label>
                     <div class="flex gap-2">
                         <input type="text" id="p-code" placeholder="उदा. 890123456" required class="flex-1 p-2.5 border rounded-xl text-xs font-semibold">
-                        <button type="button" onclick="startCameraScanner()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">
-                            📷 स्कैन
-                        </button>
+                        <button type="button" onclick="startCameraScanner()" class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow">📷 स्कैन</button>
                     </div>
                 </div>
 
                 <div id="reader-container" class="hidden-section bg-black p-3 rounded-2xl border border-red-500 relative">
                     <div id="reader" class="w-full rounded-xl overflow-hidden"></div>
-                    <button type="button" onclick="stopCameraScanner()" class="mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-xl text-xs">
-                        स्कैनर बंद करें ✕
-                    </button>
+                    <button type="button" onclick="stopCameraScanner()" class="mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-xl text-xs">स्कैनर बंद करें ✕</button>
                 </div>
 
                 <button type="submit" id="submit-btn" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-xs shadow">
@@ -70,24 +63,23 @@
             </form>
         </div>
 
-        <!-- Product List & Manage Section -->
         <div class="bg-white p-5 rounded-3xl shadow-xl border space-y-3">
             <h3 class="font-black text-gray-800 text-xs border-b pb-2 flex justify-between items-center">
-                <span>📋 मौजूद सामानों की सूची (Manage Products)</span>
+                <span>📋 मौजूद सामानों की सूची</span>
                 <span id="product-count" class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
             </h3>
-
-            <div id="manage-products-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                <!-- Products list -->
-            </div>
+            <div id="manage-products-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
         </div>
-
     </div>
 
     <script>
         let html5QrCode = null;
 
         window.onload = function() {
+            if (localStorage.getItem('jvg_session_active') !== 'true') {
+                window.location.replace('index.html');
+                return;
+            }
             renderManageProducts();
         };
 
@@ -96,10 +88,7 @@
             if (html5QrCode) { stopCameraScanner(); }
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, 
-                (decodedText) => {
-                    document.getElementById('p-code').value = decodedText;
-                    stopCameraScanner();
-                },
+                (decodedText) => { document.getElementById('p-code').value = decodedText; stopCameraScanner(); },
                 (err) => {}
             ).catch(err => { alert("कैमरा परमिशन दें!"); document.getElementById('reader-container').classList.add('hidden-section'); });
         }
@@ -112,27 +101,24 @@
         }
 
         function getProducts() {
-            try {
-                return JSON.parse(localStorage.getItem('jvg_master_products')) || [
+            let data = localStorage.getItem('jvg_master_products');
+            if (!data) {
+                let defaultProds = [
                     { name: "Ajanta LED Bulb 12W", model: "AJ-12W", price: 120, code: "890102", stock: 5, category: "Electronics" },
                     { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 3, category: "Electronics" },
                     { name: "PVC Identity Card Print", model: "PVC-01", price: 50, code: "890101", stock: 22, category: "Digital" }
                 ];
-            } catch(e) { return []; }
+                localStorage.setItem('jvg_master_products', JSON.stringify(defaultProds));
+                return defaultProds;
+            }
+            try { return JSON.parse(data); } catch(e) { return []; }
         }
 
         function renderManageProducts() {
             let products = getProducts();
-            let countBox = document.getElementById('product-count');
-            if(countBox) countBox.innerText = products.length;
+            document.getElementById('product-count').innerText = products.length;
             let box = document.getElementById('manage-products-list');
-            if(!box) return;
             box.innerHTML = '';
-
-            if (products.length === 0) {
-                box.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">कोई प्रोडक्ट मौजूद नहीं है</p>';
-                return;
-            }
 
             products.forEach((p, index) => {
                 box.innerHTML += `
@@ -142,12 +128,8 @@
                             <p class="text-[10px] text-gray-500">रेट: ₹${p.price} | स्टॉक: ${p.stock || 10} पीस</p>
                         </div>
                         <div class="flex gap-1">
-                            <button type="button" onclick="editProduct(${index})" class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold shadow">
-                                ✏️ एडिट
-                            </button>
-                            <button type="button" onclick="deleteProduct('${p.code}')" class="bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold shadow">
-                                🗑️ हटाएं
-                            </button>
+                            <button type="button" onclick="editProduct(${index})" class="bg-blue-500 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">✏️ एडिट</button>
+                            <button type="button" onclick="deleteProduct('${p.code}')" class="bg-red-500 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">🗑️ हटाएं</button>
                         </div>
                     </div>
                 `;
@@ -166,19 +148,14 @@
             let masterProducts = getProducts();
 
             if (editIdx > -1) {
-                // Update existing
                 masterProducts[editIdx] = { ...masterProducts[editIdx], name, model, price, stock, code };
-                alert('उत्पाद सफलतापूर्वक अपडेट हो गया!');
+                alert('उत्पाद अपडेट हो गया!');
                 document.getElementById('edit-index').value = -1;
                 document.getElementById('form-title').innerText = '📦 नया प्रोडक्ट अपलोड करें';
                 document.getElementById('submit-btn').innerText = '+ डेटाबेस में सेव करें';
             } else {
-                // Add new
                 let exists = masterProducts.find(x => x.code === code);
-                if (exists) {
-                    alert("यह बारकोड पहले से मौजूद है!");
-                    return;
-                }
+                if (exists) { alert("यह बारकोड पहले से मौजूद है!"); return; }
                 masterProducts.unshift({ name, model, price, stock, code, category: "Electronics" });
                 alert('उत्पाद सफलतापूर्वक सेव हो गया!');
             }
@@ -197,14 +174,13 @@
             document.getElementById('p-stock').value = p.stock || 10;
             document.getElementById('p-code').value = p.code;
             document.getElementById('edit-index').value = index;
-            
             document.getElementById('form-title').innerText = '✏️ प्रोडक्ट एडिट करें';
             document.getElementById('submit-btn').innerText = '✓ अपडेट करें';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function deleteProduct(code) {
-            if (confirm("क्या आप सच में इस प्रोडक्ट को हटाना चाहते हैं?")) {
+            if (confirm("क्या आप इस प्रोडक्ट को हटाना चाहते हैं?")) {
                 let masterProducts = getProducts();
                 masterProducts = masterProducts.filter(p => p.code !== code);
                 localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
