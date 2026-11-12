@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>JVG STS - Premium Billing & Shop App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -16,8 +15,7 @@
         }
         .hidden-section { display: none !important; }
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.98);
         }
         .premium-gradient {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #991b1b 100%);
@@ -31,61 +29,115 @@
 </head>
 <body class="min-h-screen select-none text-slate-800">
 
-    <!-- ==================== 0. PREMIUM LOGIN SCREEN ==================== -->
+    <!-- ==================== 0. LOGIN SCREEN ==================== -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-5 premium-gradient relative overflow-hidden">
-        <div class="absolute -top-20 -left-20 w-64 h-64 bg-red-600/20 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl"></div>
-
-        <div class="glass-card w-full max-w-sm rounded-[2rem] p-7 shadow-2xl border border-white/20 space-y-6 relative z-10">
+        <div class="glass-card w-full max-w-sm rounded-[2rem] p-7 shadow-2xl border border-white/20 space-y-5 relative z-10">
             <div class="text-center space-y-2">
-                <div class="w-20 h-20 rounded-3xl premium-gradient text-white flex items-center justify-center mx-auto shadow-xl border-2 border-amber-400/50">
-                    <i data-lucide="store" class="w-10 h-10 text-amber-400"></i>
+                <div class="w-20 h-20 rounded-3xl premium-gradient text-white flex items-center justify-center mx-auto shadow-xl border-2 border-amber-400/50 text-2xl font-black">
+                    🏪
                 </div>
                 <div>
                     <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-100 px-3 py-0.5 rounded-full">Premium POS & Kiosk</span>
-                    <h1 class="text-2xl font-black text-slate-900 mt-1">JVG SmartTech Suvidha</h1>
-                    <p class="text-xs text-slate-500 font-semibold flex items-center justify-center gap-1 mt-0.5">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-600"></i> गौरा दुबे, सिसवा बाज़ार, महराजगंज
-                    </p>
+                    <h1 class="text-xl font-black text-slate-900 mt-1">JVG SmartTech Suvidha</h1>
+                    <p class="text-xs text-slate-500 font-semibold mt-0.5">📍 गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
                 </div>
             </div>
 
-            <!-- Role Switcher Tabs -->
-            <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
-                <button type="button" id="role-btn-owner" onclick="selectLoginRole('owner')" class="py-2 rounded-xl text-xs font-extrabold bg-white text-slate-900 shadow-sm flex items-center justify-center gap-1.5 transition">
-                    <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-500"></i> मालिक (Owner)
-                </button>
-                <button type="button" id="role-btn-staff" onclick="selectLoginRole('staff')" class="py-2 rounded-xl text-xs font-bold text-slate-500 flex items-center justify-center gap-1.5 transition">
-                    <i data-lucide="users" class="w-3.5 h-3.5"></i> स्टाफ (Staff)
-                </button>
+            <!-- Role Switcher -->
+            <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold">
+                <button type="button" id="role-btn-owner" onclick="selectLoginRole('owner')" class="py-2 rounded-xl bg-white text-slate-900 shadow-sm transition">👑 मालिक (Owner)</button>
+                <button type="button" id="role-btn-staff" onclick="selectLoginRole('staff')" class="py-2 rounded-xl text-slate-500 transition">👥 स्टाफ (Staff)</button>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3.5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">मोबाइल नंबर (Login ID)</label>
-                    <div class="relative">
-                        <i data-lucide="smartphone" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
-                        <input type="tel" id="login-phone" value="7518314203" placeholder="10 अंकों का मोबाइल नंबर" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white transition">
-                    </div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">मोबाइल नंबर (Login ID)</label>
+                    <input type="tel" id="login-phone" value="7518314203" placeholder="मोबाइल नंबर दर्ज करें" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">पासवर्ड / PIN</label>
-                    <div class="relative">
-                        <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
-                        <input type="password" id="login-pass" value="1234" placeholder="पासवर्ड दर्ज करें" class="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white transition">
-                        <button type="button" onclick="togglePassVisibility()" class="absolute right-3.5 top-3.5 text-slate-400">
-                            <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
-                        </button>
-                    </div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">पासवर्ड / PIN</label>
+                    <input type="password" id="login-pass" value="1234" placeholder="पासवर्ड दर्ज करें" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white">
                 </div>
 
                 <p id="login-error-msg" class="hidden-section text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 text-center"></p>
 
-                <button type="button" onclick="performLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2">
-                    <span>सुरक्षित लॉगिन करें</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <!-- Secure Login Button -->
+                <button type="button" onclick="performLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl active:scale-95 transition">
+                    सुरक्षित लॉगिन करें ➔
                 </button>
 
-                <button type="button" onclick="instantOwnerLogin()" class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-extrabold rounded-2xl text-xs transition flex items-center justify-center gap-1.5">
-                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600"></i> डायरेक्ट Owner डैशबोर्ड खोलें (1-Click)
+                <!-- 1-Click Direct Owner Login Button (Best for instant access) -->
+                <button type="button" onclick="instantOwnerLogin()" class="w-full py-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold rounded-2xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                    ⚡ डायरेक्ट Owner डैशबोर्ड खोलें (1-Click)
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP CONTAINER ==================== -->
+    <div id="main-app" class="hidden-section pb-24">
+        
+        <!-- Top Header -->
+        <header class="premium-gradient text-white px-4 py-3.5 flex justify-between items-center shadow-lg sticky top-0 z-40">
+            <div>
+                <h2 class="text-sm font-black tracking-wide flex items-center gap-1">
+                    JVG STS <span class="text-[9px] bg-amber-400 text-slate-950 px-1.5 rounded font-black">PRO</span>
+                </h2>
+                <p id="user-display" class="text-[11px] text-slate-300 font-medium">जगन्नाथ विश्वकर्मा</p>
+            </div>
+            <button type="button" onclick="logout()" class="text-xs bg-white/15 px-3 py-2 rounded-xl font-bold transition">
+                लॉगआउट 🚪
+            </button>
+        </header>
+
+        <main class="max-w-md mx-auto p-4 space-y-4">
+
+            <!-- ==================== TAB 1: HOME / BILLING ==================== -->
+            <div id="tab-home" class="tab-content space-y-4">
+                
+                <!-- Dashboard Card -->
+                <div class="premium-gradient text-white p-4 rounded-3xl shadow-xl space-y-3">
+                    <div class="flex justify-between items-center text-xs border-b border-white/15 pb-2">
+                        <span class="font-bold">👤 जगन्नाथ विश्वकर्मा</span>
+                        <span class="font-bold bg-white/10 px-2.5 py-0.5 rounded-full">📞 7518314203</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5 text-center">
+                        <div class="bg-white/10 p-3 rounded-2xl">
+                            <p class="text-[11px] text-slate-300">आज की कुल सेल</p>
+                            <h2 class="text-xl font-black text-white">₹<span id="dash-total-sales">0</span></h2>
+                        </div>
+                        <div class="bg-white/10 p-3 rounded-2xl">
+                            <p class="text-[11px] text-slate-300">लाइव स्टॉक</p>
+                            <h2 class="text-xl font-black text-white"><span id="dash-total-stock">0</span> पीस</h2>
+                        </div>
+                        <div class="bg-white/10 p-3 rounded-2xl">
+                            <p class="text-[11px] text-slate-300">कुल आइटम</p>
+                            <h2 class="text-xl font-black text-white"><span id="dash-total-items">0</span> सामान</h2>
+                        </div>
+                        <div class="bg-white/10 p-3 rounded-2xl">
+                            <p class="text-[11px] text-slate-300">कुल बिल कटे</p>
+                            <h2 class="text-xl font-black text-white"><span id="dash-total-bills">0</span> बिल</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Airtel Payments Bank Quick Link -->
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-black text-slate-900">🏦 Airtel Payments Bank Portal</p>
+                        <p class="text-[10px] text-slate-500 font-semibold">खाता खोलें, बीमा और बिल भुगतान</p>
+                    </div>
+                    <a href="https://retailerapp.airtelpayments.bank.in/homeInsurance/customer-details/a1CgzwZE11" target="_blank" class="bg-red-600 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow">
+                        ओपन करें ↗
+                    </a>
+                </div>
+
+                <!-- Billing Box -->
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3.5">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-black text-slate-900 text-sm">🛍️ नया बिल बनाएं</h3>
+                        <button type="button" onclick="filterCategory('all')" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-[11px] font-bold">सब देखें</button>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-
