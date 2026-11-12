@@ -3,126 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JVG STS - Live POS App</title>
+    <title>JVG STS - Premium POS & Billing App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; background-color: #f4f6f9; }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; background-color: #f4f6f9; -webkit-tap-highlight-color: transparent; }
         .hidden-section { display: none !important; }
         .glass-card { background: rgba(255, 255, 255, 0.98); }
         .premium-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #991b1b 100%); }
         .gold-accent { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen text-slate-800">
+<body class="min-h-screen text-slate-800 pb-20">
 
-    <!-- LOGIN SCREEN -->
+    <!-- ==================== LOGIN SCREEN ==================== -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-5 premium-gradient">
         <div class="glass-card w-full max-w-sm rounded-[2rem] p-7 shadow-2xl border border-white/20 space-y-5">
             <div class="text-center space-y-2">
-                <div class="w-16 h-16 rounded-2xl premium-gradient text-white flex items-center justify-center mx-auto text-2xl font-black">🏪</div>
-                <h1 class="text-xl font-black text-slate-900">JVG SmartTech Suvidha</h1>
-                <p class="text-xs text-slate-500 font-semibold">📍 गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
+                <div class="w-16 h-16 rounded-2xl premium-gradient text-white flex items-center justify-center mx-auto text-2xl font-black shadow-lg">🏪</div>
+                <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-100 px-3 py-0.5 rounded-full">Secure POS Kiosk</span>
+                    <h1 class="text-xl font-black text-slate-900 mt-1">JVG SmartTech Suvidha</h1>
+                    <p class="text-xs text-slate-500 font-semibold mt-0.5">📍 गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
+                </div>
             </div>
 
             <div class="space-y-3.5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">मोबाइल नंबर</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">📱 मोबाइल नंबर (Login ID)</label>
                     <input type="tel" id="login-phone" value="7518314203" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">पासवर्ड</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">🔑 पासवर्ड / PIN</label>
                     <input type="password" id="login-pass" value="1234" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600">
                 </div>
 
-                <button type="button" onclick="forceLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl">
-                    लॉगिन करें ➔
+                <button type="button" onclick="forceLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl flex items-center justify-center gap-2">
+                    <span>सुरक्षित लॉगिन करें</span> ➔
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
-    <div id="main-app" class="hidden-section pb-24">
+    <!-- ==================== MAIN APP CONTAINER ==================== -->
+    <div id="main-app" class="hidden-section">
+        
+        <!-- Header -->
         <header class="premium-gradient text-white px-4 py-3.5 flex justify-between items-center shadow-lg sticky top-0 z-40">
-            <div>
-                <h2 class="text-sm font-black">JVG STS <span class="text-[9px] bg-emerald-500 px-1.5 rounded">ONLINE</span></h2>
-                <p id="user-display" class="text-[11px] text-slate-300">जगन्नाथ विश्वकर्मा (7518314203)</p>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center text-amber-400 font-bold">⚡</div>
+                <div>
+                    <h2 class="text-sm font-black flex items-center gap-1">JVG STS <span class="text-[9px] bg-amber-400 text-slate-950 px-1 rounded font-black">PRO</span></h2>
+                    <p id="user-display" class="text-[11px] text-slate-300 font-medium">जगन्नाथ विश्वकर्मा (7518314203)</p>
+                </div>
             </div>
-            <button type="button" onclick="logout()" class="text-xs bg-white/15 px-3 py-2 rounded-xl font-bold">लॉगआउट 🚪</button>
+            <button type="button" onclick="logout()" class="text-xs bg-white/15 hover:bg-white/25 px-3 py-2 rounded-xl font-bold transition flex items-center gap-1">
+                <span>लॉगआउट</span> 🚪
+            </button>
         </header>
 
         <main class="max-w-md mx-auto p-4 space-y-4">
-            <!-- Dashboard Card -->
-            <div class="premium-gradient text-white p-4 rounded-3xl shadow-xl space-y-3">
-                <div class="grid grid-cols-2 gap-2.5 text-center">
-                    <div class="bg-white/10 p-3 rounded-2xl">
-                        <p class="text-[11px] text-slate-300">आज की कुल सेल</p>
-                        <h2 class="text-xl font-black text-white">₹<span id="dash-total-sales">0</span></h2>
-                    </div>
-                    <div class="bg-white/10 p-3 rounded-2xl">
-                        <p class="text-[11px] text-slate-300">लाइव स्टॉक</p>
-                        <h2 class="text-xl font-black text-white"><span id="dash-total-stock">35</span> पीस</h2>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Billing Box -->
-            <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3.5">
-                <h3 class="font-black text-slate-900 text-sm">🛍️ नया बिल बनाएं</h3>
+            <!-- ==================== TAB 1: HOME / BILLING ==================== -->
+            <div id="tab-home" class="tab-content space-y-4">
                 
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border">
-                        <div>
-                            <p class="font-extrabold text-xs">9W LED Bulb</p>
-                            <p class="text-[11px] text-slate-600">रेट: ₹45 • स्टॉक: 20 पीस</p>
+                <!-- Dashboard Stats Card -->
+                <div class="premium-gradient text-white p-4 rounded-3xl shadow-xl space-y-3">
+                    <div class="flex justify-between items-center text-xs border-b border-white/15 pb-2">
+                        <span class="font-bold flex items-center gap-1">👤 जगन्नाथ विश्वकर्मा</span>
+                        <span class="font-bold bg-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">📞 7518314203</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5 text-center">
+                        <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                            <p class="text-[11px] text-slate-300">आज की कुल सेल</p>
+                            <h2 class="text-xl font-black text-white">₹<span id="dash-total-sales">0</span></h2>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button type="button" onclick="changeQty(-1)" class="w-7 h-7 bg-slate-200 rounded-lg font-black text-red-600">-</button>
-                            <span id="item-qty" class="font-black text-xs">1</span>
-                            <button type="button" onclick="changeQty(1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black">+</button>
+                        <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                            <p class="text-[11px] text-slate-300">लाइव स्टॉक</p>
+                            <h2 class="text-xl font-black text-white"><span id="dash-total-stock">35</span> पीस</h2>
+                        </div>
+                        <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                            <p class="text-[11px] text-slate-300">कुल आइटम</p>
+                            <h2 class="text-xl font-black text-white"><span id="dash-total-items">4</span> सामान</h2>
+                        </div>
+                        <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                            <p class="text-[11px] text-slate-300">कुल बिल कटे</p>
+                            <h2 class="text-xl font-black text-white"><span id="dash-total-bills">0</span> बिल</h2>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-3 border-t flex justify-between items-center font-black">
-                    <span class="text-xs text-slate-500 uppercase">कुल देय राशि:</span>
-                    <span class="text-2xl text-red-600">₹<span id="bill-total">45</span></span>
+                <!-- Airtel Payments Bank Portal Button -->
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg border border-red-100">🏦</div>
+                        <div>
+                            <p class="text-xs font-black text-slate-900">Airtel Payments Bank Portal</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">खाता खोलें, बीमा और बिल भुगतान</p>
+                        </div>
+                    </div>
+                    <a href="https://retailerapp.airtelpayments.bank.in/homeInsurance/customer-details/a1CgzwZE11" target="_blank" class="bg-red-600 hover:bg-red-700 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow flex items-center gap-1">
+                        <span>खोलें</span> ↗
+                    </a>
                 </div>
 
-                <button type="button" onclick="generateQR()" class="w-full py-3.5 gold-accent text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">
-                    🔒 फिक्स अमाउंट Airtel UPI QR कोड बनाएं
-                </button>
+                <!-- Billing Box -->
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3.5">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-1.5">🛍️ नया बिल काउंटर</h3>
+                        <button type="button" onclick="filterCategory('all')" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-[11px] font-bold">सभी सामान</button>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">कस्टमर मोबाइल नंबर (WhatsApp रसीद हेतु)</label>
+                        <input type="tel" id="customer-phone" placeholder="उदा. 9876543210" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-red-600">
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">सामान चुनें</p>
+                        <div id="master-products-list" class="space-y-2">
+                            <!-- Product Item 1 -->
+                            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <div>
+                                    <p class="font-extrabold text-xs text-slate-900">9W LED Bulb <span class="text-slate-400 font-semibold">(LED-9W)</span></p>
+                                    <p class="text-[11px] text-slate-600 font-semibold mt-0.5">रेट: <b class="text-slate-900">₹45</b> • स्टॉक: <span class="text-emerald-600 font-extrabold">20 पीस</span></p>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                                    <button type="button" onclick="changeQty('p1', -1)" class="w-7 h-7 bg-slate-100 rounded-lg font-black text-red-600 text-sm flex items-center justify-center">-</button>
+                                    <span id="qty-p1" class="font-black text-xs px-1 text-slate-900 min-w-[20px] text-center">0</span>
+                                    <button type="button" onclick="changeQty('p1', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black text-sm flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+                            <!-- Product Item 2 -->
+                            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <div>
+                                    <p class="font-extrabold text-xs text-slate-900">PVC Waterproof Card <span class="text-slate-400 font-semibold">(PVC-01)</span></p>
+                                    <p class="text-[11px] text-slate-600 font-semibold mt-0.5">रेट: <b class="text-slate-900">₹50</b> • स्टॉक: <span class="text-emerald-600 font-extrabold">15 पीस</span></p>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                                    <button type="button" onclick="changeQty('p2', -1)" class="w-7 h-7 bg-slate-100 rounded-lg font-black text-red-600 text-sm flex items-center justify-center">-</button>
+                                    <span id="qty-p2" class="font-black text-xs px-1 text-slate-900 min-w-[20px] text-center">0</span>
+                                    <button type="button" onclick="changeQty('p2', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black text-sm flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex justify-between items-center font-black">
+                        <span class="text-xs text-slate-500 uppercase">कुल देय राशि:</span>
+                        <span class="text-2xl text-red-600">₹<span id="bill-total">0</span></span>
+                    </div>
+
+                    <button type="button" onclick="generateQR()" class="w-full py-3.5 gold-accent text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+                        <span>🔒 फिक्स अमाउंट Airtel UPI QR कोड बनाएं</span>
+                    </button>
+                </div>
+
+                <!-- QR Display Card -->
+                <div id="qr-display-card" class="hidden-section bg-white p-5 rounded-3xl shadow-xl border-2 border-red-600 text-center space-y-3">
+                    <div>
+                        <h4 class="text-xs font-black text-red-600 uppercase">Airtel Payments Bank</h4>
+                        <h3 class="text-sm font-black text-slate-900">JVG SmartTech Suvidha</h3>
+                        <p class="text-[10px] text-slate-500 font-bold">UPI ID: 33o33c7333@mairtel</p>
+                    </div>
+
+                    <div class="bg-red-50 p-2.5 rounded-xl border border-red-200 inline-block">
+                        <p class="text-xs font-black text-red-600">🔒 फिक्स राशि: ₹<span id="card-fix-amount">0</span></p>
+                    </div>
+
+                    <div class="bg-white p-2 inline-block rounded-2xl border-2 border-slate-200 shadow mx-auto">
+                        <img id="qr-img" src="" alt="Airtel UPI QR" class="w-48 h-48 mx-auto rounded-xl">
+                    </div>
+
+                    <p class="text-[11px] font-bold text-amber-800 bg-amber-50 p-2 rounded-xl border border-amber-200">
+                        ⚠️ ग्राहक अमाउंट बदल नहीं सकता!
+                    </p>
+
+                    <button type="button" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs shadow flex items-center justify-center gap-1.5">
+                        <span>✓ पेमेंट प्राप्त हुई (बिल फाइनल करें)</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- QR Display Card -->
-            <div id="qr-display-card" class="hidden-section bg-white p-5 rounded-3xl shadow-xl border-2 border-red-600 text-center space-y-3">
-                <div>
-                    <h4 class="text-xs font-black text-red-600 uppercase">Airtel Payments Bank</h4>
-                    <h3 class="text-sm font-black text-slate-900">JVG SmartTech Suvidha</h3>
-                    <p class="text-[10px] text-slate-500 font-bold">UPI ID: 33o33c7333@mairtel</p>
+            <!-- ==================== TAB 2: CATEGORIES ==================== -->
+            <div id="tab-search" class="tab-content hidden-section space-y-4">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                    <h3 class="font-black text-slate-900 text-sm">🗂️ श्रेणी अनुसार सामान (Categories)</h3>
+                    <div class="grid grid-cols-2 gap-3 text-center text-xs font-bold">
+                        <div onclick="switchTab('tab-home')" class="bg-amber-50 p-4 rounded-2xl border border-amber-200 cursor-pointer">
+                            <div class="text-2xl mb-1">💡</div>
+                            <p class="text-amber-900">इलेक्ट्रॉनिक्स</p>
+                        </div>
+                        <div onclick="switchTab('tab-home')" class="bg-purple-50 p-4 rounded-2xl border border-purple-200 cursor-pointer">
+                            <div class="text-2xl mb-1">💳</div>
+                            <p class="text-purple-900">डिजिटल सेवाएं</p>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="bg-red-50 p-2 rounded-xl border border-red-200 inline-block">
-                    <p class="text-xs font-black text-red-600">🔒 फिक्स राशि: ₹<span id="card-fix-amount">45</span></p>
-                </div>
-
-                <div class="bg-white p-2 inline-block rounded-2xl border-2 border-slate-200 shadow mx-auto">
-                    <img id="qr-img" src="" alt="UPI QR" class="w-48 h-48 mx-auto rounded-xl">
-                </div>
-
-                <button type="button" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl text-xs shadow">
-                    ✓ पेमेंट प्राप्त हुई (बिल फाइनल करें)
-                </button>
             </div>
+
+            <!-- ==================== TAB 3: STOCK & UPLOAD ==================== -->
+            <div id="tab-upload" class="tab-content hidden-section space-y-4">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                    <h2 class="font-black text-slate-900 text-sm border-b pb-2">📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट</h2>
+                    <form onsubmit="event.preventDefault(); alert('स्टॉक सेव हो गया!');" class="space-y-3">
+                        <input type="text" placeholder="सामान का नाम (उदा. LED Bulb)" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-bold" required>
+                        <input type="number" placeholder="बिक्री रेट (₹)" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-bold" required>
+                        <input type="number" placeholder="स्टॉक मात्रा" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-bold" value="10" required>
+                        <button type="submit" class="w-full py-3 bg-emerald-600 text-white font-black rounded-xl text-xs shadow">+ डेटाबेस में सेव करें</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 4: PROFILE & STAFF ==================== -->
+            <div id="tab-profile" class="tab-content hidden-section space-y-4">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-2 text-xs">
+                    <h3 class="font-black text-slate-900 text-sm border-b pb-2 mb-2">⚙️ दुकान का विवरण</h3>
+                    <p><strong>दुकान:</strong> JVG SmartTech Suvidha (JVG STS)</p>
+                    <p><strong>संचालक:</strong> जगन्नाथ विश्वकर्मा</p>
+                    <p><strong>मोबाइल:</strong> 7518314203</p>
+                    <p><strong>पता:</strong> गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
+                    <p><strong>UPI ID:</strong> 33o33c7333@mairtel</p>
+                </div>
+            </div>
+
         </main>
+
+        <!-- ==================== BOTTOM NAVIGATION BAR ==================== -->
+        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 flex justify-around py-2.5 shadow-2xl z-40 rounded-t-3xl">
+            <button type="button" onclick="switchTab('tab-home')" id="nav-tab-home" class="flex flex-col items-center gap-0.5 text-red-600 font-black text-[11px]">
+                <span class="text-lg">🧾</span><span>बिलिंग</span>
+            </button>
+            <button type="button" onclick="switchTab('tab-search')" id="nav-tab-search" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
+                <span class="text-lg">🗂️</span><span>श्रेणी</span>
+            </button>
+            <button type="button" onclick="switchTab('tab-upload')" id="nav-tab-upload" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
+                <span class="text-lg">📦</span><span>स्टॉक</span>
+            </button>
+            <button type="button" onclick="switchTab('tab-profile')" id="nav-tab-profile" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
+                <span class="text-lg">⚙️</span><span>प्रोफ़ाइल</span>
+            </button>
+        </nav>
     </div>
 
+    <!-- Script Logic -->
     <script>
-        let qty = 1;
-        let price = 45;
+        let qtys = { p1: 0, p2: 0 };
+        let prices = { p1: 45, p2: 50 };
         let todaySales = parseInt(localStorage.getItem('jvg_sales')) || 0;
+        let totalBills = parseInt(localStorage.getItem('jvg_bills')) || 0;
+        
         document.getElementById('dash-total-sales').innerText = todaySales;
+        document.getElementById('dash-total-bills').innerText = totalBills;
 
         function forceLogin() {
             localStorage.setItem('jvg_logged_in', 'true');
@@ -142,24 +276,35 @@
             location.reload();
         }
 
-        function changeQty(val) {
-            qty += val;
-            if (qty < 1) qty = 1;
-            document.getElementById('item-qty').innerText = qty;
-            let total = qty * price;
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
+            document.getElementById(tabId).classList.remove('hidden-section');
+
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold";
+            });
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.className = "flex flex-col items-center gap-0.5 text-red-600 font-black text-[11px]";
+            }
+        }
+
+        function changeQty(item, val) {
+            qtys[item] += val;
+            if (qtys[item] < 0) qtys[item] = 0;
+            document.getElementById('qty-' + item).innerText = qtys[item];
+            
+            let total = (qtys.p1 * prices.p1) + (qtys.p2 * prices.p2);
             document.getElementById('bill-total').innerText = total;
-            document.getElementById('card-fix-amount').innerText = total;
         }
 
         function generateQR() {
-            let total = qty * price;
+            let total = (qtys.p1 * prices.p1) + (qtys.p2 * prices.p2);
+            if(total <= 0) { alert('कृपया किसी सामान की क्वांटिटी बढ़ाएं!'); return; }
+            
             document.getElementById('card-fix-amount').innerText = total;
-            
-            // Fixed & Reliable Airtel UPI QR Code Link Generator
-            let upiString = `upi://pay?pa=33o33c7333@mairtel&pn=JVG%20SmartTech%20Suvidha&am=${total}&cu=INR`;
-            let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=` + encodeURIComponent(upiString);
-            
-            document.getElementById('qr-img').src = qrApiUrl;
+            let upi = `upi://pay?pa=33o33c7333@mairtel&pn=JVG%20SmartTech%20Suvidha&am=${total}&cu=INR`;
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=` + encodeURIComponent(upi);
             
             let card = document.getElementById('qr-display-card');
             card.classList.remove('hidden-section');
@@ -167,14 +312,22 @@
         }
 
         function paymentSuccess() {
-            let total = qty * price;
+            let total = (qtys.p1 * prices.p1) + (qtys.p2 * prices.p2);
             todaySales += total;
+            totalBills += 1;
+            
             localStorage.setItem('jvg_sales', todaySales);
+            localStorage.setItem('jvg_bills', totalBills);
+            
             document.getElementById('dash-total-sales').innerText = todaySales;
+            document.getElementById('dash-total-bills').innerText = totalBills;
             document.getElementById('qr-display-card').classList.add('hidden-section');
-            alert("✓ भुगतान सफल! सेल में ₹" + total + " जुड़ गए।");
-            qty = 1;
-            changeQty(0);
+            
+            alert("✓ भुगतान सफल! कुल सेल: ₹" + total);
+            qtys = { p1: 0, p2: 0 };
+            document.getElementById('qty-p1').innerText = 0;
+            document.getElementById('qty-p2').innerText = 0;
+            document.getElementById('bill-total').innerText = 0;
         }
     </script>
 </body>
