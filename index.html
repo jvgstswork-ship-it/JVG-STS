@@ -632,4 +632,320 @@
                         <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                             <button type="button" onclick="changeQuantity('${p.code}', -1)" class="w-7 h-7 bg-slate-100 rounded-lg font-black text-red-600 text-sm flex items-center justify-center">-</button>
                             <span class="font-black text-xs px-1 text-slate-900 min-w-[20px] text-center">${currentQty}</span>
-                            <button type="button" onclick="changeQuantity('${p.code}', 1)" class="
+                            <button type="button" onclick="changeQuantity('${p.code}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black text-sm flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            calculateTotalBill();
+        }
+
+        function changeQuantity(code, delta) {
+            let prod = cloudState.products.find(p => p.code === code);
+            let currentQty = selectedQuantities[code] || 0;
+            let newQty = currentQty + delta;
+            if (newQty < 0) newQty = 0;
+            if (prod && newQty > prod.stock) {
+                alert(`⚠️ स्टॉक में केवल ${prod.stock} पीस उपलब्ध हैं!`);
+                return;
+            }
+            selectedQuantities[code] = newQty;
+            renderProductsList();
+        }
+
+        function calculateTotalBill() {
+            let total = 0;
+            cloudState.products.forEach(p => {
+                total += p.price * (selectedQuantities[p.code] || 0);
+            });
+            document.getElementById('bill-total').innerText = total;
+            document.getElementById('card-fix-amount').innerText = total;
+        }
+
+        function generateQR() {
+            lastAmount = parseInt(document.getElementById('bill-total').innerText) || 0;
+            if(lastAmount <= 0) { alert('कृपया किसी सामान की क्वांटिटी (+ बटन दबाकर) बढ़ाएं!'); return; }
+            customerPhone = document.getElementById('customer-phone').value.trim();
+
+            let upi = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=JVG%20SmartTech%20Suvidha&am=${lastAmount}&cu=INR`;
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upi)}`;
+            
+            let card = document.getElementById('qr-display-card');
+            card.classList.remove('hidden-section');
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function paymentSuccess() {
+            const btn = document.getElementById('confirm-pay-btn');
+            btn.disabled = true;
+            btn.innerText = "⏳ क्लाउड सर्वर पर सेव हो रहा है...";
+
+            // First fetch latest state to avoid overwriting concurrent sales
+            await fetchCloudState(true);
+
+            document.getElementById('qr-display-card').classList.add('hidden-section');
+            document.getElementById('receipt-total').innerText = lastAmount;
+            document.getElementById('receipt-customer').innerText = customerPhone ? "कस्टमर मोबाइल: " + customerPhone : "कस्टमर: वॉकिंग ग्राहक";
+
+            let rHtml = ''; 
+            let textMsg = "*JVG SmartTech Suvidha (JVG STS)*\nगौरा दुबे, सिसवा बाज़ार\n------------------\n";
+            
+            cloudState.products.forEach(p => {
+                let q = selectedQuantities[p.code] || 0;
+                if(q > 0) {
+                    p.stock = Math.max(0, (parseInt(p.stock) || 0) - q);
+                    rHtml += `<div class="flex justify-between"><span>${p.name} (${q}x)</span><span>₹${p.price * q}</span></div>`;
+                    textMsg += `${p.name} x${q} = ₹${p.price * q}\n`;
+                }
+            });
+
+            let timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const sellerName = localStorage.getItem('jvg_user_name') || 'ऑपरेटर';
+            
+            cloudState.salesHistory.unshift({ time: timeStr, amount: lastAmount, seller: sellerName });
+            cloudState.todaySales = (parseInt(cloudState.todaySales) || 0) + lastAmount;
+            cloudState.totalBills = (parseInt(cloudState.totalBills) || 0) + 1;
+
+            await pushCloudState();
+
+            document.getElementById('receipt-items').innerHTML = rHtml;
+            textMsg += `------------------\n*कुल भुगतान राशि: ₹${lastAmount}*\nधन्यवाद! फिर पधारें 🙏`;
+            lastReceiptText = encodeURIComponent(textMsg);
+
+            btn.disabled = false;
+            btn.innerText = "✓ पेमेंट प्राप्त हुई (बिल फाइनल करें & लाइव सिंक)";
+            document.getElementById('success-modal').classList.remove('hidden-section');
+        }
+
+        function shareWhatsApp() {
+            let cleanPhone = customerPhone.replace(/\D/g, '');
+            if(cleanPhone.length === 10) cleanPhone = "91" + cleanPhone;
+            let url = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${lastReceiptText}` : `https://api.whatsapp.com/send?text=${lastReceiptText}`;
+            window.open(url, '_blank');
+        }
+
+        function shareSMS() {
+            window.open(`sms:${customerPhone}?body=${lastReceiptText}`);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden-section');
+            cloudState.products.forEach(p => { selectedQuantities[p.code] = 0; });
+            renderProductsList();
+            document.getElementById('home-search-input').value = '';
+            document.getElementById('customer-phone').value = '';
+        }
+
+        function renderSalesHistory() {
+            let box = document.getElementById('sales-history-list');
+            if(!cloudState.salesHistory || cloudState.salesHistory.length === 0) {
+                box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">आज अभी तक कोई बिक्री दर्ज नहीं हुई है</p>';
+                return;
+            }
+            box.innerHTML = '';
+            cloudState.salesHistory.forEach(h => {
+                box.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+                    <div>
+                        <p class="font-extrabold text-slate-900">₹${h.amount} <span class="text-[10px] text-blue-600 font-bold">(${h.seller})</span></p>
+                        <p class="text-[10px] text-slate-500">समय: ${h.time}</p>
+                    </div>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-lg font-extrabold">लाइव ✓</span>
+                </div>`;
+            });
+        }
+
+        function startCameraScanner(mode) {
+            scannerMode = mode;
+            if(mode === 'upload') switchTab('tab-home');
+            document.getElementById('reader-container').classList.remove('hidden-section');
+            if (html5QrCode) stopCameraScanner();
+            
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, 
+                (decodedText) => {
+                    stopCameraScanner();
+                    if (scannerMode === 'upload') {
+                        switchTab('tab-upload');
+                        document.getElementById('p-code').value = decodedText;
+                    } else {
+                        let found = cloudState.products.find(x => x.code === decodedText || (x.model && x.model.toLowerCase() === decodedText.toLowerCase()));
+                        if(found) {
+                            changeQuantity(found.code, 1);
+                        } else {
+                            alert("यह बारकोड डेटाबेस में नहीं मिला: " + decodedText);
+                        }
+                    }
+                },
+                (err) => {}
+            ).catch(err => {
+                alert("कृपया कैमरा परमिशन दें!");
+                document.getElementById('reader-container').classList.add('hidden-section');
+            });
+        }
+
+        function stopCameraScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; }).catch(() => { html5QrCode = null; });
+            }
+            document.getElementById('reader-container').classList.add('hidden-section');
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            let name = document.getElementById('p-name').value.trim();
+            let model = document.getElementById('p-model').value.trim();
+            let category = document.getElementById('p-category').value;
+            let price = parseInt(document.getElementById('p-price').value) || 0;
+            let stock = parseInt(document.getElementById('p-stock').value) || 0;
+            let code = document.getElementById('p-code').value.trim();
+            let editIdx = parseInt(document.getElementById('edit-index').value);
+
+            await fetchCloudState(true);
+
+            if (editIdx > -1) {
+                cloudState.products[editIdx] = { name, model, category, price, stock, code };
+                alert('✓ सामान अपडेट हो गया!');
+                document.getElementById('edit-index').value = -1;
+                document.getElementById('form-title').innerText = '📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट';
+                document.getElementById('submit-btn').innerText = '+ लाइव क्लाउड में सेव करें';
+            } else {
+                if (cloudState.products.find(x => x.code === code)) {
+                    alert("⚠️ यह बारकोड पहले से मौजूद है!");
+                    return;
+                }
+                cloudState.products.unshift({ name, model, category, price, stock, code });
+                selectedQuantities[code] = 0;
+                alert('✓ नया सामान सेव हो गया!');
+            }
+
+            await pushCloudState();
+            document.getElementById('upload-form').reset();
+        }
+
+        function renderManageProducts() {
+            document.getElementById('product-count').innerText = cloudState.products.length;
+            let box = document.getElementById('manage-products-list');
+            box.innerHTML = '';
+
+            cloudState.products.forEach((p, index) => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
+                        <div>
+                            <p class="font-extrabold text-slate-900">${p.name} (${p.model || ''})</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">रेट: ₹${p.price} • स्टॉक: <b>${p.stock} पीस</b> • कोड: ${p.code}</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="editProduct(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
+                            <button type="button" onclick="deleteProduct('${p.code}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function editProduct(index) {
+            let p = cloudState.products[index];
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-model').value = p.model || '';
+            document.getElementById('p-category').value = p.category || 'Electronics';
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-stock').value = p.stock;
+            document.getElementById('p-code').value = p.code;
+            document.getElementById('edit-index').value = index;
+            document.getElementById('form-title').innerText = '✏️ सामान एडिट करें';
+            document.getElementById('submit-btn').innerText = '✓ अपडेट सेव करें';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteProduct(code) {
+            if (confirm("क्या आप इस सामान को हटाना चाहते हैं?")) {
+                await fetchCloudState(true);
+                cloudState.products = cloudState.products.filter(p => p.code !== code);
+                await pushCloudState();
+            }
+        }
+
+        async function saveStaff(e) {
+            e.preventDefault();
+            let name = document.getElementById('s-name').value.trim();
+            let phone = document.getElementById('s-phone').value.trim();
+            let pass = document.getElementById('s-pass').value.trim();
+            let editIdx = parseInt(document.getElementById('staff-edit-index').value);
+
+            await fetchCloudState(true);
+            if (!cloudState.staffList) cloudState.staffList = [];
+
+            if (editIdx > -1) {
+                cloudState.staffList[editIdx] = { name, phone, pass, role: "staff" };
+                document.getElementById('staff-edit-index').value = -1;
+                document.getElementById('staff-form-title').innerText = '👤 नया स्टाफ जोड़ें (सभी फ़ोन में काम करेगा)';
+                document.getElementById('staff-submit-btn').innerText = '+ नया स्टाफ सेव करें';
+            } else {
+                if (cloudState.staffList.find(x => x.phone === phone) || phone === OWNER_CREDS.phone) {
+                    alert("⚠️ यह मोबाइल नंबर पहले से दर्ज है!");
+                    return;
+                }
+                cloudState.staffList.push({ name, phone, pass, role: "staff" });
+            }
+
+            await pushCloudState();
+            document.getElementById('staff-form').reset();
+            alert("✓ स्टाफ की जानकारी क्लाउड पर सेव हो गई!");
+        }
+
+        function renderStaffList() {
+            let list = cloudState.staffList || [];
+            let box = document.getElementById('staff-list');
+            if(!box) return;
+            if (list.length === 0) {
+                box.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">कोई स्टाफ नहीं जोड़ा गया है</p>';
+                return;
+            }
+            box.innerHTML = '';
+            list.forEach((s, index) => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
+                        <div>
+                            <p class="font-extrabold text-slate-900">👤 ${s.name}</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">ID: ${s.phone} • पासवर्ड: ${s.pass}</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="editStaff(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
+                            <button type="button" onclick="deleteStaff('${s.phone}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function editStaff(index) {
+            let s = (cloudState.staffList || [])[index];
+            document.getElementById('s-name').value = s.name;
+            document.getElementById('s-phone').value = s.phone;
+            document.getElementById('s-pass').value = s.pass;
+            document.getElementById('staff-edit-index').value = index;
+            document.getElementById('staff-form-title').innerText = '✏️ स्टाफ एडिट करें';
+            document.getElementById('staff-submit-btn').innerText = '✓ अपडेट करें';
+        }
+
+        async function deleteStaff(phone) {
+            if (confirm("क्या आप इस स्टाफ को हटाना चाहते हैं?")) {
+                await fetchCloudState(true);
+                cloudState.staffList = (cloudState.staffList || []).filter(s => s.phone !== phone);
+                await pushCloudState();
+            }
+        }
+
+        async function resetTodaySales() {
+            if (confirm("क्या आप आज की कुल सेल और बिल काउंटर को 0 करना चाहते हैं?")) {
+                await fetchCloudState(true);
+                cloudState.todaySales = 0;
+                cloudState.totalBills = 0;
+                cloudState.salesHistory = [];
+                await pushCloudState();
+                alert("✓ नया दिन शुरू: सभी डिवाइस पर सेल डेटा रीसेट हो गया!");
+            }
+        }
+    </script>
+</body>
+</html>
