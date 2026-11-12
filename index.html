@@ -140,4 +140,749 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">कस्टमर मोबाइल नंबर (WhatsApp रसीद)</label>
+                        <input type="tel" id="customer-phone" placeholder="उदा. 9876543210" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-red-600">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="home-search-input" onkeyup="renderProductsList()" placeholder="सामान का नाम या मॉडल खोजें..." class="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-red-600">
+                        <button type="button" onclick="startCameraScanner('billing')" class="bg-slate-900 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow">📷 स्कैन</button>
+                    </div>
+
+                    <div id="reader-container" class="hidden-section bg-black p-3 rounded-2xl border-2 border-red-500">
+                        <div id="reader" class="w-full rounded-xl overflow-hidden"></div>
+                        <button type="button" onclick="stopCameraScanner()" class="mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-xl text-xs">स्कैनर बंद करें ✕</button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[11px] font-extrabold text-slate-400 uppercase">उपलब्ध सामान चुनें</p>
+                        <div id="master-products-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex justify-between items-center font-black">
+                        <span class="text-xs text-slate-500 uppercase">कुल देय राशि:</span>
+                        <span class="text-2xl text-red-600">₹<span id="bill-total">0</span></span>
+                    </div>
+
+                    <button type="button" onclick="generateQR()" class="w-full py-3.5 gold-accent text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">
+                        🔒 फिक्स अमाउंट UPI QR कोड बनाएं
+                    </button>
+                </div>
+
+                <!-- QR Display -->
+                <div id="qr-display-card" class="hidden-section bg-white p-5 rounded-3xl shadow-xl border-2 border-red-600 text-center space-y-3">
+                    <div>
+                        <h4 class="text-xs font-black text-red-600 uppercase">Airtel Payments Bank</h4>
+                        <h3 class="text-sm font-black text-slate-900">JVG SmartTech Suvidha</h3>
+                        <p class="text-[10px] text-slate-500 font-bold">UPI ID: 33o33c7333@mairtel</p>
+                    </div>
+
+                    <div class="bg-red-50 p-2.5 rounded-xl border border-red-200">
+                        <p class="text-xs font-black text-red-600">🔒 फिक्स राशि: ₹<span id="card-fix-amount">0</span></p>
+                    </div>
+
+                    <div class="bg-white p-2 inline-block rounded-2xl border-2 border-slate-200 shadow">
+                        <img id="qr-img" src="" alt="Airtel UPI QR" class="w-48 h-48 mx-auto rounded-xl">
+                    </div>
+
+                    <p class="text-[11px] font-bold text-amber-800 bg-amber-50 p-2 rounded-xl border border-amber-200">
+                        ⚠️ ग्राहक अमाउंट बदल नहीं सकता!
+                    </p>
+
+                    <button type="button" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl text-xs shadow">
+                        ✓ पेमेंट प्राप्त हुई (बिल फाइनल करें & स्टॉक घटाएं)
+                    </button>
+                </div>
+
+                <!-- Sales History -->
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-2">
+                    <h3 class="font-black text-slate-800 text-sm flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span>📜 आज की बिक्री का इतिहास</span>
+                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">₹<span id="today-total-sales">0</span></span>
+                    </h3>
+                    <div id="sales-history-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 2: CATEGORIES ==================== -->
+            <div id="tab-search" class="tab-content hidden-section space-y-4">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                    <h3 class="font-black text-slate-900 text-sm">🔍 श्रेणी अनुसार सामान (Categories)</h3>
+                    <div class="grid grid-cols-2 gap-3 text-center text-xs font-bold">
+                        <div onclick="filterCategory('Electronics')" class="bg-amber-50 p-4 rounded-2xl border border-amber-200 cursor-pointer">
+                            <div class="text-2xl mb-1">💡</div>
+                            <p class="text-amber-900">इलेक्ट्रॉनिक्स</p>
+                        </div>
+                        <div onclick="filterCategory('Digital')" class="bg-purple-50 p-4 rounded-2xl border border-purple-200 cursor-pointer">
+                            <div class="text-2xl mb-1">💳</div>
+                            <p class="text-purple-900">डिजिटल सेवाएं</p>
+                        </div>
+                        <div onclick="filterCategory('Banking')" class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 cursor-pointer">
+                            <div class="text-2xl mb-1">🏦</div>
+                            <p class="text-emerald-900">बैंकिंग/कियोस्क</p>
+                        </div>
+                        <div onclick="filterCategory('all')" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 cursor-pointer">
+                            <div class="text-2xl mb-1">📦</div>
+                            <p class="text-slate-800">सभी सामान</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 3: STOCK & UPLOAD ==================== -->
+            <div id="tab-upload" class="tab-content hidden-section space-y-4">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                    <h2 id="form-title" class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2">📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट</h2>
+                    
+                    <form id="upload-form" onsubmit="saveProduct(event)" class="space-y-3">
+                        <input type="hidden" id="edit-index" value="-1">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">सामान का नाम</label>
+                            <input type="text" id="p-name" placeholder="उदा. 9W LED Bulb" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">मॉडल / कोड</label>
+                                <input type="text" id="p-model" placeholder="उदा. LED-9W" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">श्रेणी (Category)</label>
+                                <select id="p-category" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Digital">Digital</option>
+                                    <option value="Banking">Banking</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">बिक्री रेट (₹)</label>
+                                <input type="number" id="p-price" placeholder="45" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">स्टॉक मात्रा (पीस)</label>
+                                <input type="number" id="p-stock" placeholder="20" min="0" value="10" required class="w-full p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-black text-emerald-800">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">बारकोड नंबर</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="p-code" placeholder="उदा. 890123" required class="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                                <button type="button" onclick="startCameraScanner('upload')" class="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs font-bold">📷 स्कैन</button>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="w-full py-3 bg-emerald-600 text-white font-black rounded-xl text-xs shadow">
+                            + डेटाबेस में सेव करें
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                    <h3 class="font-black text-slate-800 text-xs border-b border-slate-100 pb-2 flex justify-between items-center">
+                        <span>📋 मौजूद सामानों की सूची</span>
+                        <span id="product-count" class="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+                    </h3>
+                    <div id="manage-products-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 4: PROFILE & STAFF ==================== -->
+            <div id="tab-profile" class="tab-content hidden-section space-y-4">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-1.5 text-xs">
+                    <h3 class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2 mb-2">🏪 दुकान का विवरण</h3>
+                    <p><strong>दुकान:</strong> JVG SmartTech Suvidha (JVG STS)</p>
+                    <p><strong>संचालक:</strong> जगन्नाथ विश्वकर्मा</p>
+                    <p><strong>मोबाइल:</strong> 7518314203 / 7518294203</p>
+                    <p><strong>पता:</strong> गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
+                    <p><strong>UPI ID:</strong> 33o33c7333@mairtel</p>
+                    <div class="pt-2">
+                        <a href="https://retailerapp.airtelpayments.bank.in/homeInsurance/customer-details/a1CgzwZE11" target="_blank" class="block text-center w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs shadow">
+                            🏦 Airtel Account Open / Bill Pay ↗
+                        </a>
+                    </div>
+                </div>
+
+                <div id="owner-staff-section" class="hidden-section space-y-4">
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                        <h3 id="staff-form-title" class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2">👤 नया स्टाफ जोड़ें</h3>
+                        <form id="staff-form" onsubmit="saveStaff(event)" class="space-y-2.5">
+                            <input type="hidden" id="staff-edit-index" value="-1">
+                            <input type="text" id="s-name" placeholder="स्टाफ का नाम (उदा. अमित कुमार)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                            <input type="tel" id="s-phone" placeholder="मोबाइल नंबर (लॉगिन ID)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                            <input type="text" id="s-pass" placeholder="पासवर्ड बनाएं" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                            <button type="submit" id="staff-submit-btn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs shadow">
+                                + नया स्टाफ सेव करें
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-2">
+                        <h4 class="font-black text-slate-800 text-xs border-b border-slate-100 pb-1.5">👥 मौजूदा स्टाफ की सूची</h4>
+                        <div id="staff-list" class="space-y-2"></div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <button type="button" onclick="resetTodaySales()" class="w-full py-3 bg-slate-900 text-white font-bold rounded-xl text-xs">
+                            🔄 आज की सेल (₹0) रीसेट करें
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 flex justify-around py-3 shadow-2xl z-40 rounded-t-3xl">
+            <button type="button" onclick="switchTab('tab-home')" id="nav-tab-home" class="flex flex-col items-center gap-0.5 text-red-600 font-black text-[11px]">
+                <span class="text-lg">🧾</span><span>बिलिंग</span>
+            </button>
+            <button type="button" onclick="switchTab('tab-search')" id="nav-tab-search" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
+                <span class="text-lg">🗂️</span><span>श्रेणी</span>
+            </button>
+            <button type="button" onclick="switchTab('tab-upload')" id="nav-tab-upload" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
+                <span class="text-lg">📦</span><span>स्टॉक</span>
+            </button>
+            <button type="button" onclick="switchTab('tab-profile')" id="nav-tab-profile" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
+                <span class="text-lg">⚙️</span><span>प्रोफ़ाइल</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="hidden-section fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-5 text-center space-y-3.5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <span class="text-emerald-600 font-black text-sm">✓ भुगतान सफल & स्टॉक अपडेट!</span>
+                <button type="button" onclick="closeSuccessModal()" class="text-slate-600 font-bold text-xs px-2.5 py-1 bg-slate-100 rounded-lg">✕</button>
+            </div>
+            
+            <div class="bg-slate-50 p-3.5 rounded-2xl text-left border border-slate-200 text-xs space-y-1.5">
+                <p class="font-black text-center text-red-600 text-sm border-b pb-1">JVG SmartTech Suvidha</p>
+                <p id="receipt-customer" class="text-[11px] text-slate-700 font-bold"></p>
+                <div id="receipt-items" class="py-1 space-y-1 border-b text-[11px]"></div>
+                <div class="flex justify-between font-black text-sm pt-1">
+                    <span>कुल भुगतान:</span>
+                    <span class="text-red-600">₹<span id="receipt-total">0</span></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="shareWhatsApp()" class="py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow">💬 WhatsApp</button>
+                <button type="button" onclick="shareSMS()" class="py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow">✉️ SMS रसीद</button>
+            </div>
+
+            <button type="button" onclick="closeSuccessModal()" class="w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs shadow">
+                नया बिल बनाएं 🛒
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const OWNER_CREDS = { phone: "7518314203", pass: "1234", name: "जगन्नाथ विश्वकर्मा (Owner)", role: "owner" };
+        const MERCHANT_UPI_ID = "33o33c7333@mairtel";
+
+        let masterProducts = [];
+        try { masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')); } catch (e) { masterProducts = null; }
+
+        if (!masterProducts || !Array.isArray(masterProducts) || masterProducts.length === 0) {
+            masterProducts = [
+                { name: "9W LED Bulb", model: "LED-9W", price: 45, code: "890101", stock: 25, category: "Electronics" },
+                { name: "Ajanta LED Bulb 12W", model: "AJ-12W", price: 120, code: "890102", stock: 10, category: "Electronics" },
+                { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 5, category: "Electronics" },
+                { name: "PVC Waterproof Card Print", model: "PVC-01", price: 50, code: "890104", stock: 50, category: "Digital" },
+                { name: "Airtel Account Opening / Bill Pay", model: "AIRTEL-SRV", price: 50, code: "890105", stock: 999, category: "Banking" }
+            ];
+            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+        }
+
+        let selectedQuantities = {};
+        let selectedCategoryFilter = 'all';
+        let totalBillsCount = parseInt(localStorage.getItem('jvg_total_bills')) || 0;
+        let todaySales = parseInt(localStorage.getItem('jvg_today_sales')) || 0;
+        let salesHistory = [];
+        try { salesHistory = JSON.parse(localStorage.getItem('jvg_sales_history')) || []; } catch(e) { salesHistory = []; }
+        
+        let html5QrCode = null;
+        let scannerMode = 'billing';
+        let lastAmount = 0;
+        let lastReceiptText = "";
+        let customerPhone = "";
+
+        window.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('jvg_session_active') === 'true') {
+                showMainApp();
+            }
+        });
+
+        function selectLoginRole(role) {
+            const btnOwner = document.getElementById('role-btn-owner');
+            const btnStaff = document.getElementById('role-btn-staff');
+            const phoneInput = document.getElementById('login-phone');
+            const passInput = document.getElementById('login-pass');
+
+            if (role === 'owner') {
+                btnOwner.className = "py-2 rounded-xl bg-white text-slate-900 shadow-sm transition font-bold";
+                btnStaff.className = "py-2 rounded-xl text-slate-500 transition";
+                phoneInput.value = "7518314203";
+                passInput.value = "1234";
+            } else {
+                btnStaff.className = "py-2 rounded-xl bg-white text-slate-900 shadow-sm transition font-bold";
+                btnOwner.className = "py-2 rounded-xl text-slate-500 transition";
+                phoneInput.value = "";
+                passInput.value = "";
+            }
+        }
+
+        function performLogin() {
+            const phone = document.getElementById('login-phone').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const errBox = document.getElementById('login-error-msg');
+
+            if (!phone || !pass) {
+                errBox.innerText = "⚠️ कृपया मोबाइल नंबर और पासवर्ड दर्ज करें!";
+                errBox.classList.remove('hidden-section');
+                return;
+            }
+
+            if ((phone === OWNER_CREDS.phone || phone === "7518294203") && pass === OWNER_CREDS.pass) {
+                localStorage.setItem('jvg_session_active', 'true');
+                localStorage.setItem('jvg_user_name', OWNER_CREDS.name);
+                localStorage.setItem('jvg_user_role', 'owner');
+                showMainApp();
+                return;
+            }
+
+            let staffList = [];
+            try { staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || []; } catch(e) { staffList = []; }
+            const foundStaff = staffList.find(s => s.phone === phone && s.pass === pass);
+            
+            if (foundStaff) {
+                localStorage.setItem('jvg_session_active', 'true');
+                localStorage.setItem('jvg_user_name', foundStaff.name + " (Staff)");
+                localStorage.setItem('jvg_user_role', 'staff');
+                showMainApp();
+                return;
+            }
+
+            errBox.innerText = "❌ गलत मोबाइल नंबर या पासवर्ड! (Owner: 7518314203 / 1234)";
+            errBox.classList.remove('hidden-section');
+        }
+
+        function instantOwnerLogin() {
+            localStorage.setItem('jvg_session_active', 'true');
+            localStorage.setItem('jvg_user_name', OWNER_CREDS.name);
+            localStorage.setItem('jvg_user_role', 'owner');
+            showMainApp();
+        }
+
+        function showMainApp() {
+            document.getElementById('login-screen').classList.add('hidden-section');
+            document.getElementById('main-app').classList.remove('hidden-section');
+
+            const uName = localStorage.getItem('jvg_user_name') || 'ऑपरेटर';
+            const uRole = localStorage.getItem('jvg_user_role') || 'owner';
+            document.getElementById('user-display').innerText = uName;
+
+            if (uRole === 'owner') {
+                document.getElementById('owner-staff-section').classList.remove('hidden-section');
+            } else {
+                document.getElementById('owner-staff-section').classList.add('hidden-section');
+            }
+
+            masterProducts.forEach(p => { if(selectedQuantities[p.code] === undefined) selectedQuantities[p.code] = 0; });
+            updateDashboardStats();
+            renderProductsList();
+            renderManageProducts();
+            renderSalesHistory();
+            renderStaffList();
+        }
+
+        function logout() {
+            stopCameraScanner();
+            localStorage.removeItem('jvg_session_active');
+            document.getElementById('main-app').classList.add('hidden-section');
+            document.getElementById('login-screen').classList.remove('hidden-section');
+        }
+
+        function switchTab(tabId) {
+            stopCameraScanner();
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
+            document.getElementById(tabId).classList.remove('hidden-section');
+
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold";
+            });
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.className = "flex flex-col items-center gap-0.5 text-red-600 font-black text-[11px]";
+            }
+            if(tabId === 'tab-upload') renderManageProducts();
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('dash-total-sales').innerText = todaySales;
+            document.getElementById('today-total-sales').innerText = todaySales;
+            document.getElementById('dash-total-items').innerText = masterProducts.length;
+            document.getElementById('dash-total-bills').innerText = totalBillsCount;
+            
+            let totalStock = masterProducts.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
+            document.getElementById('dash-total-stock').innerText = totalStock;
+        }
+
+        function filterCategory(cat) {
+            selectedCategoryFilter = cat;
+            switchTab('tab-home');
+            renderProductsList();
+        }
+
+        function renderProductsList() {
+            let q = document.getElementById('home-search-input').value.toLowerCase();
+            let box = document.getElementById('master-products-list');
+            box.innerHTML = '';
+
+            let filtered = masterProducts.filter(p => {
+                let matchSearch = (p.name || '').toLowerCase().includes(q) || (p.model || '').toLowerCase().includes(q) || (p.code || '').toLowerCase().includes(q);
+                let matchCat = (selectedCategoryFilter === 'all') || (p.category === selectedCategoryFilter);
+                return matchSearch && matchCat;
+            });
+
+            if (filtered.length === 0) {
+                box.innerHTML = '<p class="text-xs text-red-500 text-center py-4 font-bold">कोई सामान नहीं मिला</p>';
+                return;
+            }
+
+            filtered.forEach(p => {
+                let currentQty = selectedQuantities[p.code] || 0;
+                let stockColor = p.stock <= 2 ? 'text-red-600' : 'text-emerald-600';
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <div class="pr-2">
+                            <p class="font-extrabold text-xs text-slate-900">${p.name} <span class="text-slate-400 font-semibold">(${p.model || ''})</span></p>
+                            <p class="text-[11px] text-slate-600 font-semibold mt-0.5">रेट: <b class="text-slate-900">₹${p.price}</b> • स्टॉक: <span class="${stockColor} font-extrabold">${p.stock} पीस</span></p>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                            <button type="button" onclick="changeQuantity('${p.code}', -1)" class="w-7 h-7 bg-slate-100 rounded-lg font-black text-red-600 text-sm flex items-center justify-center">-</button>
+                            <span class="font-black text-xs px-1 text-slate-900 min-w-[20px] text-center">${currentQty}</span>
+                            <button type="button" onclick="changeQuantity('${p.code}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black text-sm flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            calculateTotalBill();
+        }
+
+        function changeQuantity(code, delta) {
+            let prod = masterProducts.find(p => p.code === code);
+            let currentQty = selectedQuantities[code] || 0;
+            let newQty = currentQty + delta;
+            if (newQty < 0) newQty = 0;
+            if (prod && newQty > prod.stock) {
+                alert(`⚠️ स्टॉक में केवल ${prod.stock} पीस उपलब्ध हैं!`);
+                return;
+            }
+            selectedQuantities[code] = newQty;
+            renderProductsList();
+        }
+
+        function calculateTotalBill() {
+            let total = 0;
+            masterProducts.forEach(p => {
+                total += p.price * (selectedQuantities[p.code] || 0);
+            });
+            document.getElementById('bill-total').innerText = total;
+            document.getElementById('card-fix-amount').innerText = total;
+        }
+
+        function generateQR() {
+            lastAmount = parseInt(document.getElementById('bill-total').innerText) || 0;
+            if(lastAmount <= 0) { alert('कृपया किसी सामान की क्वांटिटी (+ बटन दबाकर) बढ़ाएं!'); return; }
+            customerPhone = document.getElementById('customer-phone').value.trim();
+
+            let upi = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=JVG%20SmartTech%20Suvidha&am=${lastAmount}&cu=INR`;
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upi)}`;
+            
+            let card = document.getElementById('qr-display-card');
+            card.classList.remove('hidden-section');
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function paymentSuccess() {
+            document.getElementById('qr-display-card').classList.add('hidden-section');
+            document.getElementById('receipt-total').innerText = lastAmount;
+            document.getElementById('receipt-customer').innerText = customerPhone ? "कस्टमर मोबाइल: " + customerPhone : "कस्टमर: वॉकिंग ग्राहक";
+
+            let rHtml = ''; 
+            let textMsg = "*JVG SmartTech Suvidha (JVG STS)*\nगौरा दुबे, सिसवा बाज़ार\n------------------\n";
+            
+            masterProducts.forEach(p => {
+                let q = selectedQuantities[p.code] || 0;
+                if(q > 0) {
+                    p.stock = Math.max(0, (parseInt(p.stock) || 0) - q);
+                    rHtml += `<div class="flex justify-between"><span>${p.name} (${q}x)</span><span>₹${p.price * q}</span></div>`;
+                    textMsg += `${p.name} x${q} = ₹${p.price * q}\n`;
+                }
+            });
+
+            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+            document.getElementById('receipt-items').innerHTML = rHtml;
+            textMsg += `------------------\n*कुल भुगतान राशि: ₹${lastAmount}*\nधन्यवाद! फिर पधारें 🙏`;
+            lastReceiptText = encodeURIComponent(textMsg);
+
+            let timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            salesHistory.unshift({ time: timeStr, amount: lastAmount, seller: localStorage.getItem('jvg_user_name') || 'ऑपरेटर' });
+            localStorage.setItem('jvg_sales_history', JSON.stringify(salesHistory));
+            renderSalesHistory();
+
+            todaySales += lastAmount;
+            localStorage.setItem('jvg_today_sales', todaySales);
+            totalBillsCount += 1;
+            localStorage.setItem('jvg_total_bills', totalBillsCount);
+            updateDashboardStats();
+
+            document.getElementById('success-modal').classList.remove('hidden-section');
+        }
+
+        function shareWhatsApp() {
+            let cleanPhone = customerPhone.replace(/\D/g, '');
+            if(cleanPhone.length === 10) cleanPhone = "91" + cleanPhone;
+            let url = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${lastReceiptText}` : `https://api.whatsapp.com/send?text=${lastReceiptText}`;
+            window.open(url, '_blank');
+        }
+
+        function shareSMS() {
+            window.open(`sms:${customerPhone}?body=${lastReceiptText}`);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden-section');
+            masterProducts.forEach(p => { selectedQuantities[p.code] = 0; });
+            renderProductsList();
+            document.getElementById('home-search-input').value = '';
+            document.getElementById('customer-phone').value = '';
+        }
+
+        function renderSalesHistory() {
+            let box = document.getElementById('sales-history-list');
+            if(salesHistory.length === 0) {
+                box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">आज अभी तक कोई बिक्री दर्ज नहीं हुई है</p>';
+                return;
+            }
+            box.innerHTML = '';
+            salesHistory.forEach(h => {
+                box.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+                    <div>
+                        <p class="font-extrabold text-slate-900">₹${h.amount} <span class="text-[10px] text-slate-500 font-normal">(${h.seller})</span></p>
+                        <p class="text-[10px] text-slate-500">समय: ${h.time}</p>
+                    </div>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-lg font-extrabold">सफल ✓</span>
+                </div>`;
+            });
+        }
+
+        function startCameraScanner(mode) {
+            scannerMode = mode;
+            if(mode === 'upload') switchTab('tab-home');
+            document.getElementById('reader-container').classList.remove('hidden-section');
+            if (html5QrCode) stopCameraScanner();
+            
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, 
+                (decodedText) => {
+                    stopCameraScanner();
+                    if (scannerMode === 'upload') {
+                        switchTab('tab-upload');
+                        document.getElementById('p-code').value = decodedText;
+                    } else {
+                        let found = masterProducts.find(x => x.code === decodedText || (x.model && x.model.toLowerCase() === decodedText.toLowerCase()));
+                        if(found) {
+                            changeQuantity(found.code, 1);
+                        } else {
+                            alert("यह बारकोड डेटाबेस में नहीं मिला: " + decodedText);
+                        }
+                    }
+                },
+                (err) => {}
+            ).catch(err => {
+                alert("कृपया कैमरा परमिशन दें!");
+                document.getElementById('reader-container').classList.add('hidden-section');
+            });
+        }
+
+        function stopCameraScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; }).catch(() => { html5QrCode = null; });
+            }
+            document.getElementById('reader-container').classList.add('hidden-section');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            let name = document.getElementById('p-name').value.trim();
+            let model = document.getElementById('p-model').value.trim();
+            let category = document.getElementById('p-category').value;
+            let price = parseInt(document.getElementById('p-price').value) || 0;
+            let stock = parseInt(document.getElementById('p-stock').value) || 0;
+            let code = document.getElementById('p-code').value.trim();
+            let editIdx = parseInt(document.getElementById('edit-index').value);
+
+            if (editIdx > -1) {
+                masterProducts[editIdx] = { name, model, category, price, stock, code };
+                alert('✓ सामान अपडेट हो गया!');
+                document.getElementById('edit-index').value = -1;
+                document.getElementById('form-title').innerText = '📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट';
+                document.getElementById('submit-btn').innerText = '+ डेटाबेस में सेव करें';
+            } else {
+                if (masterProducts.find(x => x.code === code)) {
+                    alert("⚠️ यह बारकोड पहले से मौजूद है!");
+                    return;
+                }
+                masterProducts.unshift({ name, model, category, price, stock, code });
+                selectedQuantities[code] = 0;
+                alert('✓ नया सामान सेव हो गया!');
+            }
+
+            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+            document.getElementById('upload-form').reset();
+            renderManageProducts();
+            renderProductsList();
+            updateDashboardStats();
+        }
+
+        function renderManageProducts() {
+            document.getElementById('product-count').innerText = masterProducts.length;
+            let box = document.getElementById('manage-products-list');
+            box.innerHTML = '';
+
+            masterProducts.forEach((p, index) => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
+                        <div>
+                            <p class="font-extrabold text-slate-900">${p.name} (${p.model || ''})</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">रेट: ₹${p.price} • स्टॉक: <b>${p.stock} पीस</b> • कोड: ${p.code}</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="editProduct(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
+                            <button type="button" onclick="deleteProduct('${p.code}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function editProduct(index) {
+            let p = masterProducts[index];
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-model').value = p.model || '';
+            document.getElementById('p-category').value = p.category || 'Electronics';
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-stock').value = p.stock;
+            document.getElementById('p-code').value = p.code;
+            document.getElementById('edit-index').value = index;
+            document.getElementById('form-title').innerText = '✏️ सामान एडिट करें';
+            document.getElementById('submit-btn').innerText = '✓ अपडेट सेव करें';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteProduct(code) {
+            if (confirm("क्या आप इस सामान को हटाना चाहते हैं?")) {
+                masterProducts = masterProducts.filter(p => p.code !== code);
+                localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+                renderManageProducts();
+                renderProductsList();
+                updateDashboardStats();
+            }
+        }
+
+        function saveStaff(e) {
+            e.preventDefault();
+            let name = document.getElementById('s-name').value.trim();
+            let phone = document.getElementById('s-phone').value.trim();
+            let pass = document.getElementById('s-pass').value.trim();
+            let editIdx = parseInt(document.getElementById('staff-edit-index').value);
+
+            let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
+
+            if (editIdx > -1) {
+                staffList[editIdx] = { name, phone, pass, role: "staff" };
+                document.getElementById('staff-edit-index').value = -1;
+                document.getElementById('staff-form-title').innerText = '👤 नया स्टाफ जोड़ें';
+                document.getElementById('staff-submit-btn').innerText = '+ नया स्टाफ सेव करें';
+            } else {
+                if (staffList.find(x => x.phone === phone) || phone === OWNER_CREDS.phone) {
+                    alert("⚠️ यह मोबाइल नंबर पहले से दर्ज है!");
+                    return;
+                }
+                staffList.push({ name, phone, pass, role: "staff" });
+            }
+
+            localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
+            document.getElementById('staff-form').reset();
+            renderStaffList();
+            alert("✓ स्टाफ की जानकारी सेव हो गई!");
+        }
+
+        function renderStaffList() {
+            let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
+            let box = document.getElementById('staff-list');
+            if(!box) return;
+            if (staffList.length === 0) {
+                box.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">कोई स्टाफ नहीं जोड़ा गया है</p>';
+                return;
+            }
+            box.innerHTML = '';
+            staffList.forEach((s, index) => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
+                        <div>
+                            <p class="font-extrabold text-slate-900">👤 ${s.name}</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">ID: ${s.phone} • पासवर्ड: ${s.pass}</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="editStaff(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
+                            <button type="button" onclick="deleteStaff('${s.phone}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function editStaff(index) {
+            let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
+            let s = staffList[index];
+            document.getElementById('s-name').value = s.name;
+            document.getElementById('s-phone').value = s.phone;
+            document.getElementById('s-pass').value = s.pass;
+            document.getElementById('staff-edit-index').value = index;
+            document.getElementById('staff-form-title').innerText = '✏️ स्टाफ एडिट करें';
+            document.getElementById('staff-submit-btn').innerText = '✓ अपडेट करें';
+        }
+
+        function deleteStaff(phone) {
+            if (confirm("क्या आप इस स्टाफ को हटाना चाहते हैं?")) {
+                let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
+                staffList = staffList.filter(s => s.phone !== phone);
+                localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
+                renderStaffList();
+            }
+        }
+
+        function resetTodaySales() {
+            if (confirm("क्या आप आज की कुल सेल और बिल काउंटर को 0 करना चाहते हैं?")) {
+                todaySales = 0;
+                totalBillsCount = 0;
+                salesHistory = [];
+                localStorage.setItem('jvg_today_sales', 0);
+                localStorage.setItem('jvg_total_bills', 0);
+                localStorage.setItem('jvg_sales_history', JSON.stringify([]));
+                updateDashboardStats();
+                renderSalesHistory();
+                alert("✓ नया दिन शुरू: सेल डेटा रीसेट हो गया!");
+            }
+        }
+    </script>
+</body>
+</html>
