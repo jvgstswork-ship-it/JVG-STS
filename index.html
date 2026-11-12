@@ -3,948 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JVG STS - Live Cloud POS & Shop App</title>
+    <title>JVG STS - Live POS App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            background-color: #f4f6f9;
-        }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; background-color: #f4f6f9; }
         .hidden-section { display: none !important; }
         .glass-card { background: rgba(255, 255, 255, 0.98); }
         .premium-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #991b1b 100%); }
         .gold-accent { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .live-dot { animation: pulse-dot 1.5s infinite; }
     </style>
 </head>
-<body class="min-h-screen select-none text-slate-800">
+<body class="min-h-screen text-slate-800">
 
-    <!-- ==================== 0. LOGIN SCREEN ==================== -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-5 premium-gradient relative overflow-hidden">
-        <div class="glass-card w-full max-w-sm rounded-[2rem] p-7 shadow-2xl border border-white/20 space-y-5 relative z-10">
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-5 premium-gradient">
+        <div class="glass-card w-full max-w-sm rounded-[2rem] p-7 shadow-2xl border border-white/20 space-y-5">
             <div class="text-center space-y-2">
-                <div class="w-20 h-20 rounded-3xl premium-gradient text-white flex items-center justify-center mx-auto shadow-xl border-2 border-amber-400/50 text-2xl font-black">
-                    🏪
-                </div>
-                <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-0.5 rounded-full">● Live Cloud Synced POS</span>
-                    <h1 class="text-xl font-black text-slate-900 mt-1">JVG SmartTech Suvidha</h1>
-                    <p class="text-xs text-slate-500 font-semibold mt-0.5">📍 गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
-                </div>
-            </div>
-
-            <!-- Role Switcher -->
-            <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold">
-                <button type="button" id="role-btn-owner" onclick="selectLoginRole('owner')" class="py-2 rounded-xl bg-white text-slate-900 shadow-sm transition">👑 मालिक (Owner)</button>
-                <button type="button" id="role-btn-staff" onclick="selectLoginRole('staff')" class="py-2 rounded-xl text-slate-500 transition">👥 स्टाफ (Staff)</button>
+                <div class="w-16 h-16 rounded-2xl premium-gradient text-white flex items-center justify-center mx-auto text-2xl font-black">🏪</div>
+                <h1 class="text-xl font-black text-slate-900">JVG SmartTech Suvidha</h1>
+                <p class="text-xs text-slate-500 font-semibold">📍 गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
             </div>
 
             <div class="space-y-3.5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">मोबाइल नंबर (Login ID)</label>
-                    <input type="tel" id="login-phone" value="7518314203" placeholder="मोबाइल नंबर दर्ज करें" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">मोबाइल नंबर</label>
+                    <input type="tel" id="login-phone" value="7518314203" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">पासवर्ड / PIN</label>
-                    <input type="password" id="login-pass" value="1234" placeholder="पासवर्ड दर्ज करें" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">पासवर्ड</label>
+                    <input type="password" id="login-pass" value="1234" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600">
                 </div>
 
-                <p id="login-error-msg" class="hidden-section text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 text-center"></p>
-
-                <button type="button" onclick="performLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl active:scale-95 transition">
-                    सुरक्षित लॉगिन करें ➔
-                </button>
-
-                <button type="button" onclick="instantOwnerLogin()" class="w-full py-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold rounded-2xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
-                    ⚡ डायरेक्ट Owner डैशबोर्ड खोलें (1-Click)
+                <button type="button" onclick="forceLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl">
+                    लॉगिन करें ➔
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ==================== MAIN APP CONTAINER ==================== -->
+    <!-- MAIN APP -->
     <div id="main-app" class="hidden-section pb-24">
-        
-        <!-- Top Header -->
         <header class="premium-gradient text-white px-4 py-3.5 flex justify-between items-center shadow-lg sticky top-0 z-40">
             <div>
-                <h2 class="text-sm font-black tracking-wide flex items-center gap-1.5">
-                    JVG STS 
-                    <span id="sync-badge" class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span> LIVE CLOUD
-                    </span>
-                </h2>
-                <p id="user-display" class="text-[11px] text-slate-300 font-medium">जगन्नाथ विश्वकर्मा</p>
+                <h2 class="text-sm font-black">JVG STS <span class="text-[9px] bg-emerald-500 px-1.5 rounded">ONLINE</span></h2>
+                <p id="user-display" class="text-[11px] text-slate-300">जगन्नाथ विश्वकर्मा (7518314203)</p>
             </div>
-            <div class="flex items-center gap-2">
-                <button type="button" onclick="manualRefresh()" class="text-xs bg-white/15 px-2.5 py-2 rounded-xl font-bold active:scale-90 transition" title="रिफ्रेश करें">
-                    🔄
-                </button>
-                <button type="button" onclick="logout()" class="text-xs bg-white/15 px-3 py-2 rounded-xl font-bold transition">
-                    लॉगआउट 🚪
-                </button>
-            </div>
+            <button type="button" onclick="logout()" class="text-xs bg-white/15 px-3 py-2 rounded-xl font-bold">लॉगआउट 🚪</button>
         </header>
 
         <main class="max-w-md mx-auto p-4 space-y-4">
+            <!-- Dashboard Card -->
+            <div class="premium-gradient text-white p-4 rounded-3xl shadow-xl space-y-3">
+                <div class="grid grid-cols-2 gap-2.5 text-center">
+                    <div class="bg-white/10 p-3 rounded-2xl">
+                        <p class="text-[11px] text-slate-300">आज की कुल सेल</p>
+                        <h2 class="text-xl font-black text-white">₹<span id="dash-total-sales">0</span></h2>
+                    </div>
+                    <div class="bg-white/10 p-3 rounded-2xl">
+                        <p class="text-[11px] text-slate-300">लाइव स्टॉक</p>
+                        <h2 class="text-xl font-black text-white"><span id="dash-total-stock">35</span> पीस</h2>
+                    </div>
+                </div>
+            </div>
 
-            <!-- ==================== TAB 1: HOME / BILLING ==================== -->
-            <div id="tab-home" class="tab-content space-y-4">
+            <!-- Billing Box -->
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3.5">
+                <h3 class="font-black text-slate-900 text-sm">🛍️ नया बिल बनाएं</h3>
                 
-                <!-- Dashboard Card -->
-                <div class="premium-gradient text-white p-4 rounded-3xl shadow-xl space-y-3">
-                    <div class="flex justify-between items-center text-xs border-b border-white/15 pb-2">
-                        <span class="font-bold">👤 जगन्नाथ विश्वकर्मा</span>
-                        <span class="font-bold bg-white/10 px-2.5 py-0.5 rounded-full">📞 7518314203</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2.5 text-center">
-                        <div class="bg-white/10 p-3 rounded-2xl">
-                            <p class="text-[11px] text-slate-300">आज की कुल सेल</p>
-                            <h2 class="text-xl font-black text-white">₹<span id="dash-total-sales">0</span></h2>
-                        </div>
-                        <div class="bg-white/10 p-3 rounded-2xl">
-                            <p class="text-[11px] text-slate-300">लाइव स्टॉक</p>
-                            <h2 class="text-xl font-black text-white"><span id="dash-total-stock">0</span> पीस</h2>
-                        </div>
-                        <div class="bg-white/10 p-3 rounded-2xl">
-                            <p class="text-[11px] text-slate-300">कुल आइटम</p>
-                            <h2 class="text-xl font-black text-white"><span id="dash-total-items">0</span> सामान</h2>
-                        </div>
-                        <div class="bg-white/10 p-3 rounded-2xl">
-                            <p class="text-[11px] text-slate-300">कुल बिल कटे</p>
-                            <h2 class="text-xl font-black text-white"><span id="dash-total-bills">0</span> बिल</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Airtel Payments Bank Portal -->
-                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs font-black text-slate-900">🏦 Airtel Payments Bank Portal</p>
-                        <p class="text-[10px] text-slate-500 font-semibold">खाता खोलें, बीमा और बिल भुगतान</p>
-                    </div>
-                    <a href="https://retailerapp.airtelpayments.bank.in/homeInsurance/customer-details/a1CgzwZE11" target="_blank" class="bg-red-600 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow">
-                        ओपन करें ↗
-                    </a>
-                </div>
-
-                <!-- Billing Box -->
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3.5">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-black text-slate-900 text-sm">🛍️ नया बिल बनाएं</h3>
-                        <button type="button" onclick="filterCategory('all')" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-[11px] font-bold">सब देखें</button>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">कस्टमर मोबाइल नंबर (WhatsApp रसीद)</label>
-                        <input type="tel" id="customer-phone" placeholder="उदा. 9876543210" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-red-600">
-                    </div>
-
-                    <div class="flex gap-2">
-                        <input type="text" id="home-search-input" onkeyup="renderProductsList()" placeholder="सामान का नाम या मॉडल खोजें..." class="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-red-600">
-                        <button type="button" onclick="startCameraScanner('billing')" class="bg-slate-900 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow">📷 स्कैन</button>
-                    </div>
-
-                    <div id="reader-container" class="hidden-section bg-black p-3 rounded-2xl border-2 border-red-500">
-                        <div id="reader" class="w-full rounded-xl overflow-hidden"></div>
-                        <button type="button" onclick="stopCameraScanner()" class="mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-xl text-xs">स्कैनर बंद करें ✕</button>
-                    </div>
-
-                    <div class="space-y-2">
-                        <p class="text-[11px] font-extrabold text-slate-400 uppercase">उपलब्ध सामान चुनें</p>
-                        <div id="master-products-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex justify-between items-center font-black">
-                        <span class="text-xs text-slate-500 uppercase">कुल देय राशि:</span>
-                        <span class="text-2xl text-red-600">₹<span id="bill-total">0</span></span>
-                    </div>
-
-                    <button type="button" onclick="generateQR()" class="w-full py-3.5 gold-accent text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">
-                        🔒 फिक्स अमाउंट UPI QR कोड बनाएं
-                    </button>
-                </div>
-
-                <!-- QR Display -->
-                <div id="qr-display-card" class="hidden-section bg-white p-5 rounded-3xl shadow-xl border-2 border-red-600 text-center space-y-3">
-                    <div>
-                        <h4 class="text-xs font-black text-red-600 uppercase">Airtel Payments Bank</h4>
-                        <h3 class="text-sm font-black text-slate-900">JVG SmartTech Suvidha</h3>
-                        <p class="text-[10px] text-slate-500 font-bold">UPI ID: 33o33c7333@mairtel</p>
-                    </div>
-
-                    <div class="bg-red-50 p-2.5 rounded-xl border border-red-200">
-                        <p class="text-xs font-black text-red-600">🔒 फिक्स राशि: ₹<span id="card-fix-amount">0</span></p>
-                    </div>
-
-                    <div class="bg-white p-2 inline-block rounded-2xl border-2 border-slate-200 shadow">
-                        <img id="qr-img" src="" alt="Airtel UPI QR" class="w-48 h-48 mx-auto rounded-xl">
-                    </div>
-
-                    <p class="text-[11px] font-bold text-amber-800 bg-amber-50 p-2 rounded-xl border border-amber-200">
-                        ⚠️ ग्राहक अमाउंट बदल नहीं सकता!
-                    </p>
-
-                    <button type="button" id="confirm-pay-btn" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl text-xs shadow">
-                        ✓ पेमेंट प्राप्त हुई (बिल फाइनल करें & लाइव सिंक)
-                    </button>
-                </div>
-
-                <!-- Sales History -->
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-2">
-                    <h3 class="font-black text-slate-800 text-sm flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span>📜 आज की बिक्री का लाइव इतिहास</span>
-                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">₹<span id="today-total-sales">0</span></span>
-                    </h3>
-                    <div id="sales-history-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
-                </div>
-            </div>
-
-            <!-- ==================== TAB 2: CATEGORIES ==================== -->
-            <div id="tab-search" class="tab-content hidden-section space-y-4">
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                    <h3 class="font-black text-slate-900 text-sm">🔍 श्रेणी अनुसार सामान (Categories)</h3>
-                    <div class="grid grid-cols-2 gap-3 text-center text-xs font-bold">
-                        <div onclick="filterCategory('Electronics')" class="bg-amber-50 p-4 rounded-2xl border border-amber-200 cursor-pointer">
-                            <div class="text-2xl mb-1">💡</div>
-                            <p class="text-amber-900">इलेक्ट्रॉनिक्स</p>
-                        </div>
-                        <div onclick="filterCategory('Digital')" class="bg-purple-50 p-4 rounded-2xl border border-purple-200 cursor-pointer">
-                            <div class="text-2xl mb-1">💳</div>
-                            <p class="text-purple-900">डिजिटल सेवाएं</p>
-                        </div>
-                        <div onclick="filterCategory('Banking')" class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 cursor-pointer">
-                            <div class="text-2xl mb-1">🏦</div>
-                            <p class="text-emerald-900">बैंकिंग/कियोस्क</p>
-                        </div>
-                        <div onclick="filterCategory('all')" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 cursor-pointer">
-                            <div class="text-2xl mb-1">📦</div>
-                            <p class="text-slate-800">सभी सामान</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ==================== TAB 3: STOCK & UPLOAD ==================== -->
-            <div id="tab-upload" class="tab-content hidden-section space-y-4">
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                    <h2 id="form-title" class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2">📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट</h2>
-                    
-                    <form id="upload-form" onsubmit="saveProduct(event)" class="space-y-3">
-                        <input type="hidden" id="edit-index" value="-1">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">सामान का नाम</label>
-                            <input type="text" id="p-name" placeholder="उदा. 9W LED Bulb" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                            <p class="font-extrabold text-xs">9W LED Bulb</p>
+                            <p class="text-[11px] text-slate-600">रेट: ₹45 • स्टॉक: 20 पीस</p>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">मॉडल / कोड</label>
-                                <input type="text" id="p-model" placeholder="उदा. LED-9W" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">श्रेणी (Category)</label>
-                                <select id="p-category" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                                    <option value="Electronics">Electronics</option>
-                                    <option value="Digital">Digital</option>
-                                    <option value="Banking">Banking</option>
-                                </select>
-                            </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="changeQty(-1)" class="w-7 h-7 bg-slate-200 rounded-lg font-black text-red-600">-</button>
+                            <span id="item-qty" class="font-black text-xs">1</span>
+                            <button type="button" onclick="changeQty(1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black">+</button>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">बिक्री रेट (₹)</label>
-                                <input type="number" id="p-price" placeholder="45" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">स्टॉक मात्रा (पीस)</label>
-                                <input type="number" id="p-stock" placeholder="20" min="0" value="10" required class="w-full p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-black text-emerald-800">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">बारकोड नंबर</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="p-code" placeholder="उदा. 890123" required class="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                                <button type="button" onclick="startCameraScanner('upload')" class="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs font-bold">📷 स्कैन</button>
-                            </div>
-                        </div>
-
-                        <button type="submit" id="submit-btn" class="w-full py-3 bg-emerald-600 text-white font-black rounded-xl text-xs shadow">
-                            + लाइव क्लाउड में सेव करें
-                        </button>
-                    </form>
+                    </div>
                 </div>
 
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                    <h3 class="font-black text-slate-800 text-xs border-b border-slate-100 pb-2 flex justify-between items-center">
-                        <span>📋 मौजूद सामानों की सूची</span>
-                        <span id="product-count" class="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
-                    </h3>
-                    <div id="manage-products-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+                <div class="pt-3 border-t flex justify-between items-center font-black">
+                    <span class="text-xs text-slate-500 uppercase">कुल देय राशि:</span>
+                    <span class="text-2xl text-red-600">₹<span id="bill-total">45</span></span>
                 </div>
+
+                <button type="button" onclick="generateQR()" class="w-full py-3.5 gold-accent text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">
+                    🔒 फिक्स अमाउंट Airtel UPI QR कोड बनाएं
+                </button>
             </div>
 
-            <!-- ==================== TAB 4: PROFILE & STAFF ==================== -->
-            <div id="tab-profile" class="tab-content hidden-section space-y-4">
-                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-1.5 text-xs">
-                    <h3 class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2 mb-2">🏪 दुकान का विवरण</h3>
-                    <p><strong>दुकान:</strong> JVG SmartTech Suvidha (JVG STS)</p>
-                    <p><strong>संचालक:</strong> जगन्नाथ विश्वकर्मा</p>
-                    <p><strong>मोबाइल:</strong> 7518314203 / 7518294203</p>
-                    <p><strong>पता:</strong> गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
-                    <p><strong>UPI ID:</strong> 33o33c7333@mairtel</p>
-                    <div class="pt-2">
-                        <a href="https://retailerapp.airtelpayments.bank.in/homeInsurance/customer-details/a1CgzwZE11" target="_blank" class="block text-center w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs shadow">
-                            🏦 Airtel Account Open / Bill Pay ↗
-                        </a>
-                    </div>
+            <!-- QR Display Card -->
+            <div id="qr-display-card" class="hidden-section bg-white p-5 rounded-3xl shadow-xl border-2 border-red-600 text-center space-y-3">
+                <div>
+                    <h4 class="text-xs font-black text-red-600 uppercase">Airtel Payments Bank</h4>
+                    <h3 class="text-sm font-black text-slate-900">JVG SmartTech Suvidha</h3>
+                    <p class="text-[10px] text-slate-500 font-bold">UPI ID: 33o33c7333@mairtel</p>
                 </div>
 
-                <div id="owner-staff-section" class="hidden-section space-y-4">
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                        <h3 id="staff-form-title" class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2">👤 नया स्टाफ जोड़ें (सभी फ़ोन में काम करेगा)</h3>
-                        <form id="staff-form" onsubmit="saveStaff(event)" class="space-y-2.5">
-                            <input type="hidden" id="staff-edit-index" value="-1">
-                            <input type="text" id="s-name" placeholder="स्टाफ का नाम (उदा. अमित कुमार)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                            <input type="tel" id="s-phone" placeholder="मोबाइल नंबर (लॉगिन ID)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                            <input type="text" id="s-pass" placeholder="पासवर्ड बनाएं" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-                            <button type="submit" id="staff-submit-btn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs shadow">
-                                + नया स्टाफ सेव करें
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-2">
-                        <h4 class="font-black text-slate-800 text-xs border-b border-slate-100 pb-1.5">👥 मौजूदा स्टाफ की सूची</h4>
-                        <div id="staff-list" class="space-y-2"></div>
-                    </div>
-
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 text-center">
-                        <button type="button" onclick="resetTodaySales()" class="w-full py-3 bg-slate-900 text-white font-bold rounded-xl text-xs">
-                            🔄 आज की सेल (₹0) रीसेट करें
-                        </button>
-                    </div>
+                <div class="bg-red-50 p-2 rounded-xl border border-red-200 inline-block">
+                    <p class="text-xs font-black text-red-600">🔒 फिक्स राशि: ₹<span id="card-fix-amount">45</span></p>
                 </div>
+
+                <div class="bg-white p-2 inline-block rounded-2xl border-2 border-slate-200 shadow mx-auto">
+                    <img id="qr-img" src="" alt="UPI QR" class="w-48 h-48 mx-auto rounded-xl">
+                </div>
+
+                <button type="button" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl text-xs shadow">
+                    ✓ पेमेंट प्राप्त हुई (बिल फाइनल करें)
+                </button>
             </div>
-
         </main>
-
-        <!-- Bottom Navigation Bar -->
-        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 flex justify-around py-3 shadow-2xl z-40 rounded-t-3xl">
-            <button type="button" onclick="switchTab('tab-home')" id="nav-tab-home" class="flex flex-col items-center gap-0.5 text-red-600 font-black text-[11px]">
-                <span class="text-lg">🧾</span><span>बिलिंग</span>
-            </button>
-            <button type="button" onclick="switchTab('tab-search')" id="nav-tab-search" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
-                <span class="text-lg">🗂️</span><span>श्रेणी</span>
-            </button>
-            <button type="button" onclick="switchTab('tab-upload')" id="nav-tab-upload" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
-                <span class="text-lg">📦</span><span>स्टॉक</span>
-            </button>
-            <button type="button" onclick="switchTab('tab-profile')" id="nav-tab-profile" class="flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold">
-                <span class="text-lg">⚙️</span><span>प्रोफ़ाइल</span>
-            </button>
-        </nav>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="success-modal" class="hidden-section fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-5 text-center space-y-3.5 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <span class="text-emerald-600 font-black text-sm">✓ भुगतान सफल & लाइव अपडेट!</span>
-                <button type="button" onclick="closeSuccessModal()" class="text-slate-600 font-bold text-xs px-2.5 py-1 bg-slate-100 rounded-lg">✕</button>
-            </div>
-            
-            <div class="bg-slate-50 p-3.5 rounded-2xl text-left border border-slate-200 text-xs space-y-1.5">
-                <p class="font-black text-center text-red-600 text-sm border-b pb-1">JVG SmartTech Suvidha</p>
-                <p id="receipt-customer" class="text-[11px] text-slate-700 font-bold"></p>
-                <div id="receipt-items" class="py-1 space-y-1 border-b text-[11px]"></div>
-                <div class="flex justify-between font-black text-sm pt-1">
-                    <span>कुल भुगतान:</span>
-                    <span class="text-red-600">₹<span id="receipt-total">0</span></span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-                <button type="button" onclick="shareWhatsApp()" class="py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow">💬 WhatsApp</button>
-                <button type="button" onclick="shareSMS()" class="py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow">✉️ SMS रसीद</button>
-            </div>
-
-            <button type="button" onclick="closeSuccessModal()" class="w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs shadow">
-                नया बिल बनाएं 🛒
-            </button>
-        </div>
     </div>
 
     <script>
-        const OWNER_CREDS = { phone: "7518314203", pass: "1234", name: "जगन्नाथ विश्वकर्मा (Owner)", role: "owner" };
-        const MERCHANT_UPI_ID = "33o33c7333@mairtel";
-        
-        // LIVE CLOUD SERVER API ENDPOINT FOR JVG STS (Syncs Phone & PC in Real-Time)
-        const CLOUD_DB_URL = "https://kvdb.io/A2nJVG7518314203STS/shop_live_state_v1";
+        let qty = 1;
+        let price = 45;
+        let todaySales = parseInt(localStorage.getItem('jvg_sales')) || 0;
+        document.getElementById('dash-total-sales').innerText = todaySales;
 
-        let cloudState = {
-            products: [
-                { name: "Realme", model: "RAMA2119", price: 499, code: "890101", stock: 3, category: "Electronics" },
-                { name: "Aeylight", model: "350", price: 199, code: "890102", stock: 9, category: "Electronics" },
-                { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 5, category: "Electronics" },
-                { name: "PVC Waterproof Card Print", model: "PVC-01", price: 50, code: "890104", stock: 22, category: "Digital" }
-            ],
-            todaySales: 0,
-            totalBills: 0,
-            salesHistory: [],
-            staffList: []
-        };
-
-        let selectedQuantities = {};
-        let selectedCategoryFilter = 'all';
-        let html5QrCode = null;
-        let scannerMode = 'billing';
-        let lastAmount = 0;
-        let lastReceiptText = "";
-        let customerPhone = "";
-        let isSyncing = false;
-
-        // Fetch Latest Data from Cloud Server
-        async function fetchCloudState(silent = false) {
-            if (isSyncing) return;
-            isSyncing = true;
-            const badge = document.getElementById('sync-badge');
-            if (!silent && badge) badge.innerHTML = '⏳ SYNCING...';
-
-            try {
-                const res = await fetch(CLOUD_DB_URL + "?t=" + Date.now());
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && Array.isArray(data.products)) {
-                        cloudState = data;
-                        localStorage.setItem('jvg_cloud_backup', JSON.stringify(cloudState));
-                    }
-                } else if (res.status === 404) {
-                    // First time setup: push initial state to cloud
-                    await pushCloudState();
-                }
-            } catch (e) {
-                const backup = localStorage.getItem('jvg_cloud_backup');
-                if (backup) cloudState = JSON.parse(backup);
-            } finally {
-                isSyncing = false;
-                if (badge) badge.innerHTML = '<span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span> LIVE CLOUD';
-                refreshAllUI();
-            }
+        function forceLogin() {
+            localStorage.setItem('jvg_logged_in', 'true');
+            document.getElementById('login-screen').classList.add('hidden-section');
+            document.getElementById('main-app').classList.remove('hidden-section');
         }
 
-        // Save Latest Data to Cloud Server so all devices see it immediately
-        async function pushCloudState() {
-            const badge = document.getElementById('sync-badge');
-            if (badge) badge.innerHTML = '⬆️ SAVING...';
-            localStorage.setItem('jvg_cloud_backup', JSON.stringify(cloudState));
-            try {
-                await fetch(CLOUD_DB_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(cloudState)
-                });
-            } catch (e) {
-                console.log("Cloud push error:", e);
-            } finally {
-                if (badge) badge.innerHTML = '<span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span> LIVE CLOUD';
-                refreshAllUI();
-            }
-        }
-
-        function refreshAllUI() {
-            if (localStorage.getItem('jvg_session_active') !== 'true') return;
-            updateDashboardStats();
-            renderProductsList();
-            renderManageProducts();
-            renderSalesHistory();
-            renderStaffList();
-        }
-
-        function manualRefresh() {
-            fetchCloudState(false);
-        }
-
-        // Auto-Sync every 4 seconds across Phone & PC
-        setInterval(() => {
-            if (localStorage.getItem('jvg_session_active') === 'true') {
-                fetchCloudState(true);
-            }
-        }, 4000);
-
-        window.addEventListener('DOMContentLoaded', async function() {
-            await fetchCloudState(true);
-            if (localStorage.getItem('jvg_session_active') === 'true') {
-                showMainApp();
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('jvg_logged_in') === 'true') {
+                document.getElementById('login-screen').classList.add('hidden-section');
+                document.getElementById('main-app').classList.remove('hidden-section');
             }
         });
 
-        function selectLoginRole(role) {
-            const btnOwner = document.getElementById('role-btn-owner');
-            const btnStaff = document.getElementById('role-btn-staff');
-            const phoneInput = document.getElementById('login-phone');
-            const passInput = document.getElementById('login-pass');
-
-            if (role === 'owner') {
-                btnOwner.className = "py-2 rounded-xl bg-white text-slate-900 shadow-sm transition font-bold";
-                btnStaff.className = "py-2 rounded-xl text-slate-500 transition";
-                phoneInput.value = "7518314203";
-                passInput.value = "1234";
-            } else {
-                btnStaff.className = "py-2 rounded-xl bg-white text-slate-900 shadow-sm transition font-bold";
-                btnOwner.className = "py-2 rounded-xl text-slate-500 transition";
-                phoneInput.value = "";
-                passInput.value = "";
-            }
-        }
-
-        async function performLogin() {
-            const phone = document.getElementById('login-phone').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-            const errBox = document.getElementById('login-error-msg');
-
-            if (!phone || !pass) {
-                errBox.innerText = "⚠️ कृपया मोबाइल नंबर और पासवर्ड दर्ज करें!";
-                errBox.classList.remove('hidden-section');
-                return;
-            }
-
-            await fetchCloudState(true);
-
-            if ((phone === OWNER_CREDS.phone || phone === "7518294203") && pass === OWNER_CREDS.pass) {
-                localStorage.setItem('jvg_session_active', 'true');
-                localStorage.setItem('jvg_user_name', OWNER_CREDS.name);
-                localStorage.setItem('jvg_user_role', 'owner');
-                showMainApp();
-                return;
-            }
-
-            const foundStaff = (cloudState.staffList || []).find(s => s.phone === phone && s.pass === pass);
-            if (foundStaff) {
-                localStorage.setItem('jvg_session_active', 'true');
-                localStorage.setItem('jvg_user_name', foundStaff.name + " (Staff)");
-                localStorage.setItem('jvg_user_role', 'staff');
-                showMainApp();
-                return;
-            }
-
-            errBox.innerText = "❌ गलत मोबाइल नंबर या पासवर्ड!";
-            errBox.classList.remove('hidden-section');
-        }
-
-        async function instantOwnerLogin() {
-            await fetchCloudState(true);
-            localStorage.setItem('jvg_session_active', 'true');
-            localStorage.setItem('jvg_user_name', OWNER_CREDS.name);
-            localStorage.setItem('jvg_user_role', 'owner');
-            showMainApp();
-        }
-
-        function showMainApp() {
-            document.getElementById('login-screen').classList.add('hidden-section');
-            document.getElementById('main-app').classList.remove('hidden-section');
-
-            const uName = localStorage.getItem('jvg_user_name') || 'ऑपरेटर';
-            const uRole = localStorage.getItem('jvg_user_role') || 'owner';
-            document.getElementById('user-display').innerText = uName;
-
-            if (uRole === 'owner') {
-                document.getElementById('owner-staff-section').classList.remove('hidden-section');
-            } else {
-                document.getElementById('owner-staff-section').classList.add('hidden-section');
-            }
-
-            cloudState.products.forEach(p => { if(selectedQuantities[p.code] === undefined) selectedQuantities[p.code] = 0; });
-            refreshAllUI();
-        }
-
         function logout() {
-            stopCameraScanner();
-            localStorage.removeItem('jvg_session_active');
-            document.getElementById('main-app').classList.add('hidden-section');
-            document.getElementById('login-screen').classList.remove('hidden-section');
+            localStorage.removeItem('jvg_logged_in');
+            location.reload();
         }
 
-        function switchTab(tabId) {
-            stopCameraScanner();
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
-            document.getElementById(tabId).classList.remove('hidden-section');
-
-            document.querySelectorAll('nav button').forEach(btn => {
-                btn.className = "flex flex-col items-center gap-0.5 text-slate-400 text-[11px] font-bold";
-            });
-            const activeNav = document.getElementById('nav-' + tabId);
-            if (activeNav) {
-                activeNav.className = "flex flex-col items-center gap-0.5 text-red-600 font-black text-[11px]";
-            }
-            if(tabId === 'tab-upload') renderManageProducts();
-        }
-
-        function updateDashboardStats() {
-            document.getElementById('dash-total-sales').innerText = cloudState.todaySales || 0;
-            document.getElementById('today-total-sales').innerText = cloudState.todaySales || 0;
-            document.getElementById('dash-total-items').innerText = cloudState.products.length;
-            document.getElementById('dash-total-bills').innerText = cloudState.totalBills || 0;
-            
-            let totalStock = cloudState.products.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
-            document.getElementById('dash-total-stock').innerText = totalStock;
-        }
-
-        function filterCategory(cat) {
-            selectedCategoryFilter = cat;
-            switchTab('tab-home');
-            renderProductsList();
-        }
-
-        function renderProductsList() {
-            let q = document.getElementById('home-search-input').value.toLowerCase();
-            let box = document.getElementById('master-products-list');
-            box.innerHTML = '';
-
-            let filtered = cloudState.products.filter(p => {
-                let matchSearch = (p.name || '').toLowerCase().includes(q) || (p.model || '').toLowerCase().includes(q) || (p.code || '').toLowerCase().includes(q);
-                let matchCat = (selectedCategoryFilter === 'all') || (p.category === selectedCategoryFilter);
-                return matchSearch && matchCat;
-            });
-
-            if (filtered.length === 0) {
-                box.innerHTML = '<p class="text-xs text-red-500 text-center py-4 font-bold">कोई सामान नहीं मिला</p>';
-                return;
-            }
-
-            filtered.forEach(p => {
-                let currentQty = selectedQuantities[p.code] || 0;
-                let stockColor = p.stock <= 2 ? 'text-red-600' : 'text-emerald-600';
-                box.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
-                        <div class="pr-2">
-                            <p class="font-extrabold text-xs text-slate-900">${p.name} <span class="text-slate-400 font-semibold">(${p.model || ''})</span></p>
-                            <p class="text-[11px] text-slate-600 font-semibold mt-0.5">रेट: <b class="text-slate-900">₹${p.price}</b> • स्टॉक: <span class="${stockColor} font-extrabold">${p.stock} पीस</span></p>
-                        </div>
-                        <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-                            <button type="button" onclick="changeQuantity('${p.code}', -1)" class="w-7 h-7 bg-slate-100 rounded-lg font-black text-red-600 text-sm flex items-center justify-center">-</button>
-                            <span class="font-black text-xs px-1 text-slate-900 min-w-[20px] text-center">${currentQty}</span>
-                            <button type="button" onclick="changeQuantity('${p.code}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black text-sm flex items-center justify-center">+</button>
-                        </div>
-                    </div>
-                `;
-            });
-            calculateTotalBill();
-        }
-
-        function changeQuantity(code, delta) {
-            let prod = cloudState.products.find(p => p.code === code);
-            let currentQty = selectedQuantities[code] || 0;
-            let newQty = currentQty + delta;
-            if (newQty < 0) newQty = 0;
-            if (prod && newQty > prod.stock) {
-                alert(`⚠️ स्टॉक में केवल ${prod.stock} पीस उपलब्ध हैं!`);
-                return;
-            }
-            selectedQuantities[code] = newQty;
-            renderProductsList();
-        }
-
-        function calculateTotalBill() {
-            let total = 0;
-            cloudState.products.forEach(p => {
-                total += p.price * (selectedQuantities[p.code] || 0);
-            });
+        function changeQty(val) {
+            qty += val;
+            if (qty < 1) qty = 1;
+            document.getElementById('item-qty').innerText = qty;
+            let total = qty * price;
             document.getElementById('bill-total').innerText = total;
             document.getElementById('card-fix-amount').innerText = total;
         }
 
         function generateQR() {
-            lastAmount = parseInt(document.getElementById('bill-total').innerText) || 0;
-            if(lastAmount <= 0) { alert('कृपया किसी सामान की क्वांटिटी (+ बटन दबाकर) बढ़ाएं!'); return; }
-            customerPhone = document.getElementById('customer-phone').value.trim();
-
-            let upi = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=JVG%20SmartTech%20Suvidha&am=${lastAmount}&cu=INR`;
-            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upi)}`;
+            let total = qty * price;
+            document.getElementById('card-fix-amount').innerText = total;
+            
+            // Fixed & Reliable Airtel UPI QR Code Link Generator
+            let upiString = `upi://pay?pa=33o33c7333@mairtel&pn=JVG%20SmartTech%20Suvidha&am=${total}&cu=INR`;
+            let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=` + encodeURIComponent(upiString);
+            
+            document.getElementById('qr-img').src = qrApiUrl;
             
             let card = document.getElementById('qr-display-card');
             card.classList.remove('hidden-section');
             card.scrollIntoView({ behavior: 'smooth' });
         }
 
-        async function paymentSuccess() {
-            const btn = document.getElementById('confirm-pay-btn');
-            btn.disabled = true;
-            btn.innerText = "⏳ क्लाउड सर्वर पर सेव हो रहा है...";
-
-            // First fetch latest state to avoid overwriting concurrent sales
-            await fetchCloudState(true);
-
+        function paymentSuccess() {
+            let total = qty * price;
+            todaySales += total;
+            localStorage.setItem('jvg_sales', todaySales);
+            document.getElementById('dash-total-sales').innerText = todaySales;
             document.getElementById('qr-display-card').classList.add('hidden-section');
-            document.getElementById('receipt-total').innerText = lastAmount;
-            document.getElementById('receipt-customer').innerText = customerPhone ? "कस्टमर मोबाइल: " + customerPhone : "कस्टमर: वॉकिंग ग्राहक";
-
-            let rHtml = ''; 
-            let textMsg = "*JVG SmartTech Suvidha (JVG STS)*\nगौरा दुबे, सिसवा बाज़ार\n------------------\n";
-            
-            cloudState.products.forEach(p => {
-                let q = selectedQuantities[p.code] || 0;
-                if(q > 0) {
-                    p.stock = Math.max(0, (parseInt(p.stock) || 0) - q);
-                    rHtml += `<div class="flex justify-between"><span>${p.name} (${q}x)</span><span>₹${p.price * q}</span></div>`;
-                    textMsg += `${p.name} x${q} = ₹${p.price * q}\n`;
-                }
-            });
-
-            let timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const sellerName = localStorage.getItem('jvg_user_name') || 'ऑपरेटर';
-            
-            cloudState.salesHistory.unshift({ time: timeStr, amount: lastAmount, seller: sellerName });
-            cloudState.todaySales = (parseInt(cloudState.todaySales) || 0) + lastAmount;
-            cloudState.totalBills = (parseInt(cloudState.totalBills) || 0) + 1;
-
-            await pushCloudState();
-
-            document.getElementById('receipt-items').innerHTML = rHtml;
-            textMsg += `------------------\n*कुल भुगतान राशि: ₹${lastAmount}*\nधन्यवाद! फिर पधारें 🙏`;
-            lastReceiptText = encodeURIComponent(textMsg);
-
-            btn.disabled = false;
-            btn.innerText = "✓ पेमेंट प्राप्त हुई (बिल फाइनल करें & लाइव सिंक)";
-            document.getElementById('success-modal').classList.remove('hidden-section');
-        }
-
-        function shareWhatsApp() {
-            let cleanPhone = customerPhone.replace(/\D/g, '');
-            if(cleanPhone.length === 10) cleanPhone = "91" + cleanPhone;
-            let url = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${lastReceiptText}` : `https://api.whatsapp.com/send?text=${lastReceiptText}`;
-            window.open(url, '_blank');
-        }
-
-        function shareSMS() {
-            window.open(`sms:${customerPhone}?body=${lastReceiptText}`);
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('success-modal').classList.add('hidden-section');
-            cloudState.products.forEach(p => { selectedQuantities[p.code] = 0; });
-            renderProductsList();
-            document.getElementById('home-search-input').value = '';
-            document.getElementById('customer-phone').value = '';
-        }
-
-        function renderSalesHistory() {
-            let box = document.getElementById('sales-history-list');
-            if(!cloudState.salesHistory || cloudState.salesHistory.length === 0) {
-                box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">आज अभी तक कोई बिक्री दर्ज नहीं हुई है</p>';
-                return;
-            }
-            box.innerHTML = '';
-            cloudState.salesHistory.forEach(h => {
-                box.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
-                    <div>
-                        <p class="font-extrabold text-slate-900">₹${h.amount} <span class="text-[10px] text-blue-600 font-bold">(${h.seller})</span></p>
-                        <p class="text-[10px] text-slate-500">समय: ${h.time}</p>
-                    </div>
-                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-lg font-extrabold">लाइव ✓</span>
-                </div>`;
-            });
-        }
-
-        function startCameraScanner(mode) {
-            scannerMode = mode;
-            if(mode === 'upload') switchTab('tab-home');
-            document.getElementById('reader-container').classList.remove('hidden-section');
-            if (html5QrCode) stopCameraScanner();
-            
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, 
-                (decodedText) => {
-                    stopCameraScanner();
-                    if (scannerMode === 'upload') {
-                        switchTab('tab-upload');
-                        document.getElementById('p-code').value = decodedText;
-                    } else {
-                        let found = cloudState.products.find(x => x.code === decodedText || (x.model && x.model.toLowerCase() === decodedText.toLowerCase()));
-                        if(found) {
-                            changeQuantity(found.code, 1);
-                        } else {
-                            alert("यह बारकोड डेटाबेस में नहीं मिला: " + decodedText);
-                        }
-                    }
-                },
-                (err) => {}
-            ).catch(err => {
-                alert("कृपया कैमरा परमिशन दें!");
-                document.getElementById('reader-container').classList.add('hidden-section');
-            });
-        }
-
-        function stopCameraScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; }).catch(() => { html5QrCode = null; });
-            }
-            document.getElementById('reader-container').classList.add('hidden-section');
-        }
-
-        async function saveProduct(e) {
-            e.preventDefault();
-            let name = document.getElementById('p-name').value.trim();
-            let model = document.getElementById('p-model').value.trim();
-            let category = document.getElementById('p-category').value;
-            let price = parseInt(document.getElementById('p-price').value) || 0;
-            let stock = parseInt(document.getElementById('p-stock').value) || 0;
-            let code = document.getElementById('p-code').value.trim();
-            let editIdx = parseInt(document.getElementById('edit-index').value);
-
-            await fetchCloudState(true);
-
-            if (editIdx > -1) {
-                cloudState.products[editIdx] = { name, model, category, price, stock, code };
-                alert('✓ सामान अपडेट हो गया!');
-                document.getElementById('edit-index').value = -1;
-                document.getElementById('form-title').innerText = '📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट';
-                document.getElementById('submit-btn').innerText = '+ लाइव क्लाउड में सेव करें';
-            } else {
-                if (cloudState.products.find(x => x.code === code)) {
-                    alert("⚠️ यह बारकोड पहले से मौजूद है!");
-                    return;
-                }
-                cloudState.products.unshift({ name, model, category, price, stock, code });
-                selectedQuantities[code] = 0;
-                alert('✓ नया सामान सेव हो गया!');
-            }
-
-            await pushCloudState();
-            document.getElementById('upload-form').reset();
-        }
-
-        function renderManageProducts() {
-            document.getElementById('product-count').innerText = cloudState.products.length;
-            let box = document.getElementById('manage-products-list');
-            box.innerHTML = '';
-
-            cloudState.products.forEach((p, index) => {
-                box.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
-                        <div>
-                            <p class="font-extrabold text-slate-900">${p.name} (${p.model || ''})</p>
-                            <p class="text-[10px] text-slate-500 font-semibold">रेट: ₹${p.price} • स्टॉक: <b>${p.stock} पीस</b> • कोड: ${p.code}</p>
-                        </div>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="editProduct(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
-                            <button type="button" onclick="deleteProduct('${p.code}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function editProduct(index) {
-            let p = cloudState.products[index];
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-model').value = p.model || '';
-            document.getElementById('p-category').value = p.category || 'Electronics';
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-stock').value = p.stock;
-            document.getElementById('p-code').value = p.code;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('form-title').innerText = '✏️ सामान एडिट करें';
-            document.getElementById('submit-btn').innerText = '✓ अपडेट सेव करें';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function deleteProduct(code) {
-            if (confirm("क्या आप इस सामान को हटाना चाहते हैं?")) {
-                await fetchCloudState(true);
-                cloudState.products = cloudState.products.filter(p => p.code !== code);
-                await pushCloudState();
-            }
-        }
-
-        async function saveStaff(e) {
-            e.preventDefault();
-            let name = document.getElementById('s-name').value.trim();
-            let phone = document.getElementById('s-phone').value.trim();
-            let pass = document.getElementById('s-pass').value.trim();
-            let editIdx = parseInt(document.getElementById('staff-edit-index').value);
-
-            await fetchCloudState(true);
-            if (!cloudState.staffList) cloudState.staffList = [];
-
-            if (editIdx > -1) {
-                cloudState.staffList[editIdx] = { name, phone, pass, role: "staff" };
-                document.getElementById('staff-edit-index').value = -1;
-                document.getElementById('staff-form-title').innerText = '👤 नया स्टाफ जोड़ें (सभी फ़ोन में काम करेगा)';
-                document.getElementById('staff-submit-btn').innerText = '+ नया स्टाफ सेव करें';
-            } else {
-                if (cloudState.staffList.find(x => x.phone === phone) || phone === OWNER_CREDS.phone) {
-                    alert("⚠️ यह मोबाइल नंबर पहले से दर्ज है!");
-                    return;
-                }
-                cloudState.staffList.push({ name, phone, pass, role: "staff" });
-            }
-
-            await pushCloudState();
-            document.getElementById('staff-form').reset();
-            alert("✓ स्टाफ की जानकारी क्लाउड पर सेव हो गई!");
-        }
-
-        function renderStaffList() {
-            let list = cloudState.staffList || [];
-            let box = document.getElementById('staff-list');
-            if(!box) return;
-            if (list.length === 0) {
-                box.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">कोई स्टाफ नहीं जोड़ा गया है</p>';
-                return;
-            }
-            box.innerHTML = '';
-            list.forEach((s, index) => {
-                box.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
-                        <div>
-                            <p class="font-extrabold text-slate-900">👤 ${s.name}</p>
-                            <p class="text-[10px] text-slate-500 font-semibold">ID: ${s.phone} • पासवर्ड: ${s.pass}</p>
-                        </div>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="editStaff(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
-                            <button type="button" onclick="deleteStaff('${s.phone}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function editStaff(index) {
-            let s = (cloudState.staffList || [])[index];
-            document.getElementById('s-name').value = s.name;
-            document.getElementById('s-phone').value = s.phone;
-            document.getElementById('s-pass').value = s.pass;
-            document.getElementById('staff-edit-index').value = index;
-            document.getElementById('staff-form-title').innerText = '✏️ स्टाफ एडिट करें';
-            document.getElementById('staff-submit-btn').innerText = '✓ अपडेट करें';
-        }
-
-        async function deleteStaff(phone) {
-            if (confirm("क्या आप इस स्टाफ को हटाना चाहते हैं?")) {
-                await fetchCloudState(true);
-                cloudState.staffList = (cloudState.staffList || []).filter(s => s.phone !== phone);
-                await pushCloudState();
-            }
-        }
-
-        async function resetTodaySales() {
-            if (confirm("क्या आप आज की कुल सेल और बिल काउंटर को 0 करना चाहते हैं?")) {
-                await fetchCloudState(true);
-                cloudState.todaySales = 0;
-                cloudState.totalBills = 0;
-                cloudState.salesHistory = [];
-                await pushCloudState();
-                alert("✓ नया दिन शुरू: सभी डिवाइस पर सेल डेटा रीसेट हो गया!");
-            }
+            alert("✓ भुगतान सफल! सेल में ₹" + total + " जुड़ गए।");
+            qty = 1;
+            changeQty(0);
         }
     </script>
 </body>
