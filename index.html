@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JVG STS - Premium Billing & Shop App</title>
+    <title>JVG STS - Live Cloud POS & Shop App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -19,6 +19,8 @@
         .gold-accent { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .live-dot { animation: pulse-dot 1.5s infinite; }
     </style>
 </head>
 <body class="min-h-screen select-none text-slate-800">
@@ -31,7 +33,7 @@
                     🏪
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-100 px-3 py-0.5 rounded-full">Live Cloud POS & Kiosk</span>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-0.5 rounded-full">● Live Cloud Synced POS</span>
                     <h1 class="text-xl font-black text-slate-900 mt-1">JVG SmartTech Suvidha</h1>
                     <p class="text-xs text-slate-500 font-semibold mt-0.5">📍 गौरा दुबे, सिसवा बाज़ार, महराजगंज</p>
                 </div>
@@ -72,14 +74,22 @@
         <!-- Top Header -->
         <header class="premium-gradient text-white px-4 py-3.5 flex justify-between items-center shadow-lg sticky top-0 z-40">
             <div>
-                <h2 class="text-sm font-black tracking-wide flex items-center gap-1">
-                    JVG STS <span class="text-[9px] bg-amber-400 text-slate-950 px-1.5 rounded font-black">LIVE SYNC</span>
+                <h2 class="text-sm font-black tracking-wide flex items-center gap-1.5">
+                    JVG STS 
+                    <span id="sync-badge" class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span> LIVE CLOUD
+                    </span>
                 </h2>
                 <p id="user-display" class="text-[11px] text-slate-300 font-medium">जगन्नाथ विश्वकर्मा</p>
             </div>
-            <button type="button" onclick="logout()" class="text-xs bg-white/15 px-3 py-2 rounded-xl font-bold transition">
-                लॉगआउट 🚪
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="manualRefresh()" class="text-xs bg-white/15 px-2.5 py-2 rounded-xl font-bold active:scale-90 transition" title="रिफ्रेश करें">
+                    🔄
+                </button>
+                <button type="button" onclick="logout()" class="text-xs bg-white/15 px-3 py-2 rounded-xl font-bold transition">
+                    लॉगआउट 🚪
+                </button>
+            </div>
         </header>
 
         <main class="max-w-md mx-auto p-4 space-y-4">
@@ -181,15 +191,15 @@
                         ⚠️ ग्राहक अमाउंट बदल नहीं सकता!
                     </p>
 
-                    <button type="button" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl text-xs shadow">
-                        ✓ पेमेंट प्राप्त हुई (बिल फाइनल करें & स्टॉक घटाएं)
+                    <button type="button" id="confirm-pay-btn" onclick="paymentSuccess()" class="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl text-xs shadow">
+                        ✓ पेमेंट प्राप्त हुई (बिल फाइनल करें & लाइव सिंक)
                     </button>
                 </div>
 
                 <!-- Sales History -->
                 <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-2">
                     <h3 class="font-black text-slate-800 text-sm flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span>📜 आज की बिक्री का इतिहास (Live Sync)</span>
+                        <span>📜 आज की बिक्री का लाइव इतिहास</span>
                         <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">₹<span id="today-total-sales">0</span></span>
                     </h3>
                     <div id="sales-history-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
@@ -268,7 +278,7 @@
                         </div>
 
                         <button type="submit" id="submit-btn" class="w-full py-3 bg-emerald-600 text-white font-black rounded-xl text-xs shadow">
-                            + डेटाबेस में सेव करें
+                            + लाइव क्लाउड में सेव करें
                         </button>
                     </form>
                 </div>
@@ -300,7 +310,7 @@
 
                 <div id="owner-staff-section" class="hidden-section space-y-4">
                     <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                        <h3 id="staff-form-title" class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2">👤 नया स्टाफ जोड़ें</h3>
+                        <h3 id="staff-form-title" class="font-black text-slate-900 text-sm border-b border-slate-100 pb-2">👤 नया स्टाफ जोड़ें (सभी फ़ोन में काम करेगा)</h3>
                         <form id="staff-form" onsubmit="saveStaff(event)" class="space-y-2.5">
                             <input type="hidden" id="staff-edit-index" value="-1">
                             <input type="text" id="s-name" placeholder="स्टाफ का नाम (उदा. अमित कुमार)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
@@ -348,7 +358,7 @@
     <div id="success-modal" class="hidden-section fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-sm rounded-3xl p-5 text-center space-y-3.5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <span class="text-emerald-600 font-black text-sm">✓ भुगतान सफल & लाइव सिंक!</span>
+                <span class="text-emerald-600 font-black text-sm">✓ भुगतान सफल & लाइव अपडेट!</span>
                 <button type="button" onclick="closeSuccessModal()" class="text-slate-600 font-bold text-xs px-2.5 py-1 bg-slate-100 rounded-lg">✕</button>
             </div>
             
@@ -376,51 +386,102 @@
     <script>
         const OWNER_CREDS = { phone: "7518314203", pass: "1234", name: "जगन्नाथ विश्वकर्मा (Owner)", role: "owner" };
         const MERCHANT_UPI_ID = "33o33c7333@mairtel";
+        
+        // LIVE CLOUD SERVER API ENDPOINT FOR JVG STS (Syncs Phone & PC in Real-Time)
+        const CLOUD_DB_URL = "https://kvdb.io/A2nJVG7518314203STS/shop_live_state_v1";
 
-        let masterProducts = [];
+        let cloudState = {
+            products: [
+                { name: "Realme", model: "RAMA2119", price: 499, code: "890101", stock: 3, category: "Electronics" },
+                { name: "Aeylight", model: "350", price: 199, code: "890102", stock: 9, category: "Electronics" },
+                { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 5, category: "Electronics" },
+                { name: "PVC Waterproof Card Print", model: "PVC-01", price: 50, code: "890104", stock: 22, category: "Digital" }
+            ],
+            todaySales: 0,
+            totalBills: 0,
+            salesHistory: [],
+            staffList: []
+        };
+
         let selectedQuantities = {};
         let selectedCategoryFilter = 'all';
-        let totalBillsCount = 0;
-        let todaySales = 0;
-        let salesHistory = [];
-        
         let html5QrCode = null;
         let scannerMode = 'billing';
         let lastAmount = 0;
         let lastReceiptText = "";
         let customerPhone = "";
+        let isSyncing = false;
 
-        // Load data from localStorage with sync check
-        function loadAppData() {
-            try { masterProducts = JSON.parse(localStorage.getItem('jvg_master_products')); } catch (e) { masterProducts = null; }
-            if (!masterProducts || !Array.isArray(masterProducts) || masterProducts.length === 0) {
-                masterProducts = [
-                    { name: "Realme", model: "RAMA2119", price: 499, code: "890101", stock: 3, category: "Electronics" },
-                    { name: "Aeylight", model: "350", price: 199, code: "890102", stock: 9, category: "Electronics" },
-                    { name: "boAt Neckband BT-101", model: "BT-101", price: 650, code: "890103", stock: 5, category: "Electronics" },
-                    { name: "PVC Waterproof Card Print", model: "PVC-01", price: 50, code: "890104", stock: 22, category: "Digital" }
-                ];
-                localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
+        // Fetch Latest Data from Cloud Server
+        async function fetchCloudState(silent = false) {
+            if (isSyncing) return;
+            isSyncing = true;
+            const badge = document.getElementById('sync-badge');
+            if (!silent && badge) badge.innerHTML = '⏳ SYNCING...';
+
+            try {
+                const res = await fetch(CLOUD_DB_URL + "?t=" + Date.now());
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data.products)) {
+                        cloudState = data;
+                        localStorage.setItem('jvg_cloud_backup', JSON.stringify(cloudState));
+                    }
+                } else if (res.status === 404) {
+                    // First time setup: push initial state to cloud
+                    await pushCloudState();
+                }
+            } catch (e) {
+                const backup = localStorage.getItem('jvg_cloud_backup');
+                if (backup) cloudState = JSON.parse(backup);
+            } finally {
+                isSyncing = false;
+                if (badge) badge.innerHTML = '<span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span> LIVE CLOUD';
+                refreshAllUI();
             }
-
-            totalBillsCount = parseInt(localStorage.getItem('jvg_total_bills')) || 0;
-            todaySales = parseInt(localStorage.getItem('jvg_today_sales')) || 0;
-            try { salesHistory = JSON.parse(localStorage.getItem('jvg_sales_history')) || []; } catch(e) { salesHistory = []; }
         }
 
-        // Live Cross-Device Sync Listener via localStorage
-        window.addEventListener('storage', function(e) {
-            loadAppData();
-            if(localStorage.getItem('jvg_session_active') === 'true') {
-                updateDashboardStats();
-                renderProductsList();
-                renderManageProducts();
-                renderSalesHistory();
+        // Save Latest Data to Cloud Server so all devices see it immediately
+        async function pushCloudState() {
+            const badge = document.getElementById('sync-badge');
+            if (badge) badge.innerHTML = '⬆️ SAVING...';
+            localStorage.setItem('jvg_cloud_backup', JSON.stringify(cloudState));
+            try {
+                await fetch(CLOUD_DB_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cloudState)
+                });
+            } catch (e) {
+                console.log("Cloud push error:", e);
+            } finally {
+                if (badge) badge.innerHTML = '<span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span> LIVE CLOUD';
+                refreshAllUI();
             }
-        });
+        }
 
-        window.addEventListener('DOMContentLoaded', function() {
-            loadAppData();
+        function refreshAllUI() {
+            if (localStorage.getItem('jvg_session_active') !== 'true') return;
+            updateDashboardStats();
+            renderProductsList();
+            renderManageProducts();
+            renderSalesHistory();
+            renderStaffList();
+        }
+
+        function manualRefresh() {
+            fetchCloudState(false);
+        }
+
+        // Auto-Sync every 4 seconds across Phone & PC
+        setInterval(() => {
+            if (localStorage.getItem('jvg_session_active') === 'true') {
+                fetchCloudState(true);
+            }
+        }, 4000);
+
+        window.addEventListener('DOMContentLoaded', async function() {
+            await fetchCloudState(true);
             if (localStorage.getItem('jvg_session_active') === 'true') {
                 showMainApp();
             }
@@ -445,7 +506,7 @@
             }
         }
 
-        function performLogin() {
+        async function performLogin() {
             const phone = document.getElementById('login-phone').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
             const errBox = document.getElementById('login-error-msg');
@@ -456,6 +517,8 @@
                 return;
             }
 
+            await fetchCloudState(true);
+
             if ((phone === OWNER_CREDS.phone || phone === "7518294203") && pass === OWNER_CREDS.pass) {
                 localStorage.setItem('jvg_session_active', 'true');
                 localStorage.setItem('jvg_user_name', OWNER_CREDS.name);
@@ -464,10 +527,7 @@
                 return;
             }
 
-            let staffList = [];
-            try { staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || []; } catch(e) { staffList = []; }
-            const foundStaff = staffList.find(s => s.phone === phone && s.pass === pass);
-            
+            const foundStaff = (cloudState.staffList || []).find(s => s.phone === phone && s.pass === pass);
             if (foundStaff) {
                 localStorage.setItem('jvg_session_active', 'true');
                 localStorage.setItem('jvg_user_name', foundStaff.name + " (Staff)");
@@ -480,7 +540,8 @@
             errBox.classList.remove('hidden-section');
         }
 
-        function instantOwnerLogin() {
+        async function instantOwnerLogin() {
+            await fetchCloudState(true);
             localStorage.setItem('jvg_session_active', 'true');
             localStorage.setItem('jvg_user_name', OWNER_CREDS.name);
             localStorage.setItem('jvg_user_role', 'owner');
@@ -488,7 +549,6 @@
         }
 
         function showMainApp() {
-            loadAppData();
             document.getElementById('login-screen').classList.add('hidden-section');
             document.getElementById('main-app').classList.remove('hidden-section');
 
@@ -502,12 +562,8 @@
                 document.getElementById('owner-staff-section').classList.add('hidden-section');
             }
 
-            masterProducts.forEach(p => { if(selectedQuantities[p.code] === undefined) selectedQuantities[p.code] = 0; });
-            updateDashboardStats();
-            renderProductsList();
-            renderManageProducts();
-            renderSalesHistory();
-            renderStaffList();
+            cloudState.products.forEach(p => { if(selectedQuantities[p.code] === undefined) selectedQuantities[p.code] = 0; });
+            refreshAllUI();
         }
 
         function logout() {
@@ -533,13 +589,12 @@
         }
 
         function updateDashboardStats() {
-            loadAppData();
-            document.getElementById('dash-total-sales').innerText = todaySales;
-            document.getElementById('today-total-sales').innerText = todaySales;
-            document.getElementById('dash-total-items').innerText = masterProducts.length;
-            document.getElementById('dash-total-bills').innerText = totalBillsCount;
+            document.getElementById('dash-total-sales').innerText = cloudState.todaySales || 0;
+            document.getElementById('today-total-sales').innerText = cloudState.todaySales || 0;
+            document.getElementById('dash-total-items').innerText = cloudState.products.length;
+            document.getElementById('dash-total-bills').innerText = cloudState.totalBills || 0;
             
-            let totalStock = masterProducts.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
+            let totalStock = cloudState.products.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
             document.getElementById('dash-total-stock').innerText = totalStock;
         }
 
@@ -550,12 +605,11 @@
         }
 
         function renderProductsList() {
-            loadAppData();
             let q = document.getElementById('home-search-input').value.toLowerCase();
             let box = document.getElementById('master-products-list');
             box.innerHTML = '';
 
-            let filtered = masterProducts.filter(p => {
+            let filtered = cloudState.products.filter(p => {
                 let matchSearch = (p.name || '').toLowerCase().includes(q) || (p.model || '').toLowerCase().includes(q) || (p.code || '').toLowerCase().includes(q);
                 let matchCat = (selectedCategoryFilter === 'all') || (p.category === selectedCategoryFilter);
                 return matchSearch && matchCat;
@@ -578,327 +632,4 @@
                         <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                             <button type="button" onclick="changeQuantity('${p.code}', -1)" class="w-7 h-7 bg-slate-100 rounded-lg font-black text-red-600 text-sm flex items-center justify-center">-</button>
                             <span class="font-black text-xs px-1 text-slate-900 min-w-[20px] text-center">${currentQty}</span>
-                            <button type="button" onclick="changeQuantity('${p.code}', 1)" class="w-7 h-7 bg-red-600 text-white rounded-lg font-black text-sm flex items-center justify-center">+</button>
-                        </div>
-                    </div>
-                `;
-            });
-            calculateTotalBill();
-        }
-
-        function changeQuantity(code, delta) {
-            let prod = masterProducts.find(p => p.code === code);
-            let currentQty = selectedQuantities[code] || 0;
-            let newQty = currentQty + delta;
-            if (newQty < 0) newQty = 0;
-            if (prod && newQty > prod.stock) {
-                alert(`⚠️ स्टॉक में केवल ${prod.stock} पीस उपलब्ध हैं!`);
-                return;
-            }
-            selectedQuantities[code] = newQty;
-            renderProductsList();
-        }
-
-        function calculateTotalBill() {
-            let total = 0;
-            masterProducts.forEach(p => {
-                total += p.price * (selectedQuantities[p.code] || 0);
-            });
-            document.getElementById('bill-total').innerText = total;
-            document.getElementById('card-fix-amount').innerText = total;
-        }
-
-        function generateQR() {
-            lastAmount = parseInt(document.getElementById('bill-total').innerText) || 0;
-            if(lastAmount <= 0) { alert('कृपया किसी सामान की क्वांटिटी (+ बटन दबाकर) बढ़ाएं!'); return; }
-            customerPhone = document.getElementById('customer-phone').value.trim();
-
-            let upi = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=JVG%20SmartTech%20Suvidha&am=${lastAmount}&cu=INR`;
-            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upi)}`;
-            
-            let card = document.getElementById('qr-display-card');
-            card.classList.remove('hidden-section');
-            card.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function paymentSuccess() {
-            document.getElementById('qr-display-card').classList.add('hidden-section');
-            document.getElementById('receipt-total').innerText = lastAmount;
-            document.getElementById('receipt-customer').innerText = customerPhone ? "कस्टमर मोबाइल: " + customerPhone : "कस्टमर: वॉकिंग ग्राहक";
-
-            let rHtml = ''; 
-            let textMsg = "*JVG SmartTech Suvidha (JVG STS)*\nगौरा दुबे, सिसवा बाज़ार\n------------------\n";
-            
-            masterProducts.forEach(p => {
-                let q = selectedQuantities[p.code] || 0;
-                if(q > 0) {
-                    p.stock = Math.max(0, (parseInt(p.stock) || 0) - q);
-                    rHtml += `<div class="flex justify-between"><span>${p.name} (${q}x)</span><span>₹${p.price * q}</span></div>`;
-                    textMsg += `${p.name} x${q} = ₹${p.price * q}\n`;
-                }
-            });
-
-            // Save and Sync Data across devices
-            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
-
-            let timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            salesHistory.unshift({ time: timeStr, amount: lastAmount, seller: localStorage.getItem('jvg_user_name') || 'ऑपरेटर' });
-            localStorage.setItem('jvg_sales_history', JSON.stringify(salesHistory));
-
-            todaySales += lastAmount;
-            localStorage.setItem('jvg_today_sales', todaySales);
-            totalBillsCount += 1;
-            localStorage.setItem('jvg_total_bills', totalBillsCount);
-
-            updateDashboardStats();
-            renderSalesHistory();
-            renderProductsList();
-
-            textMsg += `------------------\n*कुल भुगतान राशि: ₹${lastAmount}*\nधन्यवाद! फिर पधारें 🙏`;
-            lastReceiptText = encodeURIComponent(textMsg);
-
-            document.getElementById('success-modal').classList.remove('hidden-section');
-        }
-
-        function shareWhatsApp() {
-            let cleanPhone = customerPhone.replace(/\D/g, '');
-            if(cleanPhone.length === 10) cleanPhone = "91" + cleanPhone;
-            let url = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${lastReceiptText}` : `https://api.whatsapp.com/send?text=${lastReceiptText}`;
-            window.open(url, '_blank');
-        }
-
-        function shareSMS() {
-            window.open(`sms:${customerPhone}?body=${lastReceiptText}`);
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('success-modal').classList.add('hidden-section');
-            masterProducts.forEach(p => { selectedQuantities[p.code] = 0; });
-            renderProductsList();
-            document.getElementById('home-search-input').value = '';
-            document.getElementById('customer-phone').value = '';
-        }
-
-        function renderSalesHistory() {
-            loadAppData();
-            let box = document.getElementById('sales-history-list');
-            if(salesHistory.length === 0) {
-                box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">आज अभी तक कोई बिक्री दर्ज नहीं हुई है</p>';
-                return;
-            }
-            box.innerHTML = '';
-            salesHistory.forEach(h => {
-                box.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
-                    <div>
-                        <p class="font-extrabold text-slate-900">₹${h.amount} <span class="text-[10px] text-slate-500 font-normal">(${h.seller})</span></p>
-                        <p class="text-[10px] text-slate-500">समय: ${h.time}</p>
-                    </div>
-                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-lg font-extrabold">लाइव ✓</span>
-                </div>`;
-            });
-        }
-
-        function startCameraScanner(mode) {
-            scannerMode = mode;
-            if(mode === 'upload') switchTab('tab-home');
-            document.getElementById('reader-container').classList.remove('hidden-section');
-            if (html5QrCode) stopCameraScanner();
-            
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, 
-                (decodedText) => {
-                    stopCameraScanner();
-                    if (scannerMode === 'upload') {
-                        switchTab('tab-upload');
-                        document.getElementById('p-code').value = decodedText;
-                    } else {
-                        let found = masterProducts.find(x => x.code === decodedText || (x.model && x.model.toLowerCase() === decodedText.toLowerCase()));
-                        if(found) {
-                            changeQuantity(found.code, 1);
-                        } else {
-                            alert("यह बारकोड डेटाबेस में नहीं मिला: " + decodedText);
-                        }
-                    }
-                },
-                (err) => {}
-            ).catch(err => {
-                alert("कृपया कैमरा परमिशन दें!");
-                document.getElementById('reader-container').classList.add('hidden-section');
-            });
-        }
-
-        function stopCameraScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; }).catch(() => { html5QrCode = null; });
-            }
-            document.getElementById('reader-container').classList.add('hidden-section');
-        }
-
-        function saveProduct(e) {
-            e.preventDefault();
-            let name = document.getElementById('p-name').value.trim();
-            let model = document.getElementById('p-model').value.trim();
-            let category = document.getElementById('p-category').value;
-            let price = parseInt(document.getElementById('p-price').value) || 0;
-            let stock = parseInt(document.getElementById('p-stock').value) || 0;
-            let code = document.getElementById('p-code').value.trim();
-            let editIdx = parseInt(document.getElementById('edit-index').value);
-
-            if (editIdx > -1) {
-                masterProducts[editIdx] = { name, model, category, price, stock, code };
-                alert('✓ सामान अपडेट हो गया!');
-                document.getElementById('edit-index').value = -1;
-                document.getElementById('form-title').innerText = '📦 नया प्रोडक्ट जोड़ें / स्टॉक अपडेट';
-                document.getElementById('submit-btn').innerText = '+ डेटाबेस में सेव करें';
-            } else {
-                if (masterProducts.find(x => x.code === code)) {
-                    alert("⚠️ यह बारकोड पहले से मौजूद है!");
-                    return;
-                }
-                masterProducts.unshift({ name, model, category, price, stock, code });
-                selectedQuantities[code] = 0;
-                alert('✓ नया सामान सेव हो गया!');
-            }
-
-            localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
-            document.getElementById('upload-form').reset();
-            renderManageProducts();
-            renderProductsList();
-            updateDashboardStats();
-        }
-
-        function renderManageProducts() {
-            loadAppData();
-            document.getElementById('product-count').innerText = masterProducts.length;
-            let box = document.getElementById('manage-products-list');
-            box.innerHTML = '';
-
-            masterProducts.forEach((p, index) => {
-                box.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
-                        <div>
-                            <p class="font-extrabold text-slate-900">${p.name} (${p.model || ''})</p>
-                            <p class="text-[10px] text-slate-500 font-semibold">रेट: ₹${p.price} • स्टॉक: <b>${p.stock} पीस</b> • कोड: ${p.code}</p>
-                        </div>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="editProduct(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
-                            <button type="button" onclick="deleteProduct('${p.code}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function editProduct(index) {
-            let p = masterProducts[index];
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-model').value = p.model || '';
-            document.getElementById('p-category').value = p.category || 'Electronics';
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-stock').value = p.stock;
-            document.getElementById('p-code').value = p.code;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('form-title').innerText = '✏️ सामान एडिट करें';
-            document.getElementById('submit-btn').innerText = '✓ अपडेट सेव करें';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function deleteProduct(code) {
-            if (confirm("क्या आप इस सामान को हटाना चाहते हैं?")) {
-                masterProducts = masterProducts.filter(p => p.code !== code);
-                localStorage.setItem('jvg_master_products', JSON.stringify(masterProducts));
-                renderManageProducts();
-                renderProductsList();
-                updateDashboardStats();
-            }
-        }
-
-        function saveStaff(e) {
-            e.preventDefault();
-            let name = document.getElementById('s-name').value.trim();
-            let phone = document.getElementById('s-phone').value.trim();
-            let pass = document.getElementById('s-pass').value.trim();
-            let editIdx = parseInt(document.getElementById('staff-edit-index').value);
-
-            let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
-
-            if (editIdx > -1) {
-                staffList[editIdx] = { name, phone, pass, role: "staff" };
-                document.getElementById('staff-edit-index').value = -1;
-                document.getElementById('staff-form-title').innerText = '👤 नया स्टाफ जोड़ें';
-                document.getElementById('staff-submit-btn').innerText = '+ नया स्टाफ सेव करें';
-            } else {
-                if (staffList.find(x => x.phone === phone) || phone === OWNER_CREDS.phone) {
-                    alert("⚠️ यह मोबाइल नंबर पहले से दर्ज है!");
-                    return;
-                }
-                staffList.push({ name, phone, pass, role: "staff" });
-            }
-
-            localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
-            document.getElementById('staff-form').reset();
-            renderStaffList();
-            alert("✓ स्टाफ की जानकारी सेव हो गई!");
-        }
-
-        function renderStaffList() {
-            let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
-            let box = document.getElementById('staff-list');
-            if(!box) return;
-            if (staffList.length === 0) {
-                box.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">कोई स्टाफ नहीं जोड़ा गया है</p>';
-                return;
-            }
-            box.innerHTML = ' ';
-            staffList.forEach((s, index) => {
-                box.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 text-xs">
-                        <div>
-                            <p class="font-extrabold text-slate-900">👤 ${s.name}</p>
-                            <p class="text-[10px] text-slate-500 font-semibold">ID: ${s.phone} • पासवर्ड: ${s.pass}</p>
-                        </div>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="editStaff(${index})" class="bg-blue-600 text-white px-2 py-1 rounded-lg font-bold">✏️</button>
-                            <button type="button" onclick="deleteStaff('${s.phone}')" class="bg-red-600 text-white px-2 py-1 rounded-lg font-bold">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function editStaff(index) {
-            let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
-            let s = staffList[index];
-            document.getElementById('s-name').value = s.name;
-            document.getElementById('s-phone').value = s.phone;
-            document.getElementById('s-pass').value = s.pass;
-            document.getElementById('staff-edit-index').value = index;
-            document.getElementById('staff-form-title').innerText = '✏️ स्टाफ एडिट करें';
-            document.getElementById('staff-submit-btn').innerText = '✓ अपडेट करें';
-        }
-
-        function deleteStaff(phone) {
-            if (confirm("क्या आप इस स्टाफ को हटाना चाहते हैं?")) {
-                let staffList = JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
-                staffList = staffList.filter(s => s.phone !== phone);
-                localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
-                renderStaffList();
-            }
-        }
-
-        function resetTodaySales() {
-            if (confirm("क्या आप आज की कुल सेल और बिल काउंटर को 0 करना चाहते हैं?")) {
-                todaySales = 0;
-                totalBillsCount = 0;
-                salesHistory = [];
-                localStorage.setItem('jvg_today_sales', 0);
-                localStorage.setItem('jvg_total_bills', 0);
-                localStorage.setItem('jvg_sales_history', JSON.stringify([]));
-                updateDashboardStats();
-                renderSalesHistory();
-                alert("✓ नया दिन शुरू: सेल डेटा रीसेट हो गया!");
-            }
-        }
-    </script>
-</body>
-</html>
+                            <button type="button" onclick="changeQuantity('${p.code}', 1)" class="
