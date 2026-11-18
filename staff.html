@@ -1,7 +1,150 @@
-<!doctype html>
-<html>
-  <head>
-    <meta http-equiv="refresh" content="0; url=/" />
-  </head>
-  <body></body>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVG STS - Staff Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 font-sans pb-20">
+    <div class="max-w-md mx-auto space-y-5">
+        
+        <!-- Add/Edit Staff Form -->
+        <div class="bg-white p-5 rounded-3xl shadow-xl border space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h2 id="staff-form-title" class="font-black text-red-600 text-sm">👤 नया स्टाफ जोड़ें</h2>
+                <a href="biling.html" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow">
+                    🏠 होम (बिलिंग)
+                </a>
+            </div>
+
+            <form id="staff-form" onsubmit="addStaff(event)" class="space-y-3">
+                <input type="hidden" id="staff-edit-index" value="-1">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">स्टाफ का नाम</label>
+                    <input type="text" id="s-name" placeholder="उदा. अमित कुमार" required class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">मोबाइल नंबर (लॉगिन ID)</label>
+                    <input type="tel" id="s-phone" placeholder="उदा. 9876543210" required class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">पासवर्ड</label>
+                    <input type="text" id="s-pass" placeholder="पासवर्ड दर्ज करें" required class="w-full p-2.5 border rounded-xl text-xs font-semibold">
+                </div>
+
+                <button type="submit" id="staff-submit-btn" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-xs shadow">
+                    + नया स्टाफ सेव करें
+                </button>
+            </form>
+        </div>
+
+        <!-- Staff List Section -->
+        <div class="bg-white p-5 rounded-3xl shadow-xl border space-y-3">
+            <h3 class="font-black text-gray-800 text-xs border-b pb-2 flex justify-between items-center">
+                <span>👥 मौजूदा स्टाफ की सूची (Manage Staff)</span>
+                <span id="staff-count" class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+            </h3>
+
+            <div id="staff-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+
+    </div>
+
+    <script>
+        window.onload = function() {
+            renderStaffList();
+        };
+
+        function getStaffList() {
+            try {
+                return JSON.parse(localStorage.getItem('jvg_staff_list')) || [];
+            } catch(e) { return []; }
+        }
+
+        function renderStaffList() {
+            let staffList = getStaffList();
+            let countBox = document.getElementById('staff-count');
+            if(countBox) countBox.innerText = staffList.length;
+            let box = document.getElementById('staff-list');
+            if(!box) return;
+            box.innerHTML = '';
+
+            if (staffList.length === 0) {
+                box.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">कोई स्टाफ नहीं जोड़ा गया है</p>';
+                return;
+            }
+
+            staffList.forEach((s, index) => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border text-xs">
+                        <div>
+                            <p class="font-bold text-gray-800">👤 ${s.name}</p>
+                            <p class="text-[10px] text-gray-500">📞 ${s.phone} | पास: ${s.pass}</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button type="button" onclick="editStaff(${index})" class="bg-blue-500 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">✏️ एडिट</button>
+                            <button type="button" onclick="deleteStaff('${s.phone}')" class="bg-red-500 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">🗑️ हटाएं</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addStaff(e) {
+            e.preventDefault();
+            let name = document.getElementById('s-name').value.trim();
+            let phone = document.getElementById('s-phone').value.trim();
+            let pass = document.getElementById('s-pass').value.trim();
+            let editIdx = parseInt(document.getElementById('staff-edit-index').value);
+
+            let staffList = getStaffList();
+
+            if (editIdx > -1) {
+                staffList[editIdx] = { ...staffList[editIdx], name, phone, pass };
+                alert("स्टाफ की जानकारी अपडेट हो गई!");
+                document.getElementById('staff-edit-index').value = -1;
+                document.getElementById('staff-form-title').innerText = '👤 नया स्टाफ जोड़ें';
+                document.getElementById('staff-submit-btn').innerText = '+ नया स्टाफ सेव करें';
+            } else {
+                let exists = staffList.find(x => x.phone === phone);
+                if (exists) {
+                    alert("यह मोबाइल नंबर पहले से दर्ज है!");
+                    return;
+                }
+                staffList.push({ name, phone, pass, role: "staff" });
+                alert("नया स्टाफ सफलतापूर्वक जोड़ दिया गया!");
+            }
+
+            localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
+            document.getElementById('staff-form').reset();
+            renderStaffList();
+        }
+
+        function editStaff(index) {
+            let staffList = getStaffList();
+            let s = staffList[index];
+            document.getElementById('s-name').value = s.name;
+            document.getElementById('s-phone').value = s.phone;
+            document.getElementById('s-pass').value = s.pass;
+            document.getElementById('staff-edit-index').value = index;
+
+            document.getElementById('staff-form-title').innerText = '✏️ स्टाफ एडिट करें';
+            document.getElementById('staff-submit-btn').innerText = '✓ अपडेट करें';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteStaff(phone) {
+            if (confirm("क्या आप सच में इस स्टाफ मेंबर को हटाना चाहते हैं?")) {
+                let staffList = getStaffList();
+                staffList = staffList.filter(s => s.phone !== phone);
+                localStorage.setItem('jvg_staff_list', JSON.stringify(staffList));
+                renderStaffList();
+                alert("स्टाफ मेंबर हटा दिया गया!");
+            }
+        }
+    </script>
+</body>
 </html>

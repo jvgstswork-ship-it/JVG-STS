@@ -1,14 +1,91 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="hi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#12372a" />
-    <meta name="description" content="JVG SmartTech Suvidha — सरल और तेज़ दुकान प्रबंधन" />
-    <title>JVG SmartTech Suvidha</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JVG STS - Premium Billing & Shop App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #f4f6f9;
+        }
+        .hidden-section { display: none !important; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+        }
+        .premium-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #991b1b 100%);
+        }
+        .gold-accent {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen select-none text-slate-800">
+
+    <!-- ==================== 0. PREMIUM LOGIN SCREEN ==================== -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-5 premium-gradient relative overflow-hidden">
+        <div class="absolute -top-20 -left-20 w-64 h-64 bg-red-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl"></div>
+
+        <div class="glass-card w-full max-w-sm rounded-[2rem] p-7 shadow-2xl border border-white/20 space-y-6 relative z-10">
+            <div class="text-center space-y-2">
+                <div class="w-20 h-20 rounded-3xl premium-gradient text-white flex items-center justify-center mx-auto shadow-xl border-2 border-amber-400/50">
+                    <i data-lucide="store" class="w-10 h-10 text-amber-400"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-100 px-3 py-0.5 rounded-full">Premium POS & Kiosk</span>
+                    <h1 class="text-2xl font-black text-slate-900 mt-1">JVG SmartTech Suvidha</h1>
+                    <p class="text-xs text-slate-500 font-semibold flex items-center justify-center gap-1 mt-0.5">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-600"></i> गौरा दुबे, सिसवा बाज़ार, महराजगंज
+                    </p>
+                </div>
+            </div>
+
+            <!-- Role Switcher Tabs -->
+            <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                <button type="button" id="role-btn-owner" onclick="selectLoginRole('owner')" class="py-2 rounded-xl text-xs font-extrabold bg-white text-slate-900 shadow-sm flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-500"></i> मालिक (Owner)
+                </button>
+                <button type="button" id="role-btn-staff" onclick="selectLoginRole('staff')" class="py-2 rounded-xl text-xs font-bold text-slate-500 flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="users" class="w-3.5 h-3.5"></i> स्टाफ (Staff)
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">मोबाइल नंबर (Login ID)</label>
+                    <div class="relative">
+                        <i data-lucide="smartphone" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
+                        <input type="tel" id="login-phone" value="7518314203" placeholder="10 अंकों का मोबाइल नंबर" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">पासवर्ड / PIN</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
+                        <input type="password" id="login-pass" value="1234" placeholder="पासवर्ड दर्ज करें" class="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white transition">
+                        <button type="button" onclick="togglePassVisibility()" class="absolute right-3.5 top-3.5 text-slate-400">
+                            <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p id="login-error-msg" class="hidden-section text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 text-center"></p>
+
+                <button type="button" onclick="performLogin()" class="w-full py-3.5 premium-gradient text-white font-black rounded-2xl text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2">
+                    <span>सुरक्षित लॉगिन करें</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+
+                <button type="button" onclick="instantOwnerLogin()" class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-extrabold rounded-2xl text-xs transition flex items-center justify-center gap-1.5">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600"></i> डायरेक्ट Owner डैशबोर्ड खोलें (1-Click)
+                </button>
